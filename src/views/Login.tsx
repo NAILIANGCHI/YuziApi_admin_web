@@ -3,6 +3,7 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Form, Input, message } from 'antd';
 import ParticlesBg from 'particles-bg';
 import { login } from '@/utils/request/api/apiList';
+import Foot from '@/compontes/Foot/Foot';
 import { AxiosResponse, AxiosError } from 'axios';
 
 interface LoginFormValues {
@@ -134,6 +135,9 @@ const Login = () => {
           </Form.Item>
         </Form>
       </div>
+      <div>
+          <Foot/>
+        </div>
     </>
   );
 };

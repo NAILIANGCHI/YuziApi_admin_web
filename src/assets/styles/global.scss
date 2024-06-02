@@ -8,3 +8,22 @@ img {
     // 禁止拖拽图片
     -webkit-user-drag: none;
 }
+
+#footer {
+    position: fixed; /* 绝对定位 */
+    bottom: 0; /* 放置在页面底部 */
+    left: 0; /* 水平对齐于页面左边 */
+    width: 100%; /* 宽度占满整个页面 */
+    text-align: center; /* 文字居中 */
+    line-height: 50px; /* 文字垂直居中 */
+    background-color: rgba(255, 255, 255, 0); /* 设置背景颜色透明度 */
+    z-index: -1;
+  }
+  
+  #footer p {
+    font-size: 18px;
+    font-weight: 500;
+    opacity: 1; /* 确保文字完全不透明 */
+    color: black; /* 文字颜色 */
+  }
+  
