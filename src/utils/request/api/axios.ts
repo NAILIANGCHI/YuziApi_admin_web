@@ -38,7 +38,7 @@ const HttpRequest = (baseUrl: string) => {
         instance.interceptors.response.use(function (response: AxiosResponse) {
             // 2xx 范围内的状态码都会触发该函数。
             // 对响应数据做点什么
-            return response.data;
+            return response;
         }, function (error) {
             // 对响应错误做点什么
             return Promise.reject(error);
