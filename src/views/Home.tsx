@@ -60,7 +60,7 @@ export default function Home() {
     <Layout style={{ minHeight: '100vh' }}>
     <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
       <div className="demo-logo-vertical" />
-      <h1 style={{color: 'white', fontWeight: 'bold', fontSize: 20, textAlign: 'center', margin: 10}}>后台管理</h1>
+      <h1 style={{color: 'white', fontWeight: 'bold', fontSize: 20, textAlign: 'center', margin: 10}}>🐟后台管理</h1>
       <Menu theme="dark" defaultSelectedKeys={['/page1']} mode="inline" items={items} onClick={changeMenu}/>
     </Sider>
     <Layout>
