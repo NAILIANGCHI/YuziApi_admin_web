@@ -12,5 +12,6 @@ export function setToken(token: string) {
 
 // 删除 token
 export function removeToken() {
-    localStorage.removeItem
+    // localStorage.setItem('token', '')
+    localStorage.removeItem('token')
 }

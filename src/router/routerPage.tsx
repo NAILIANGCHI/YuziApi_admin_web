@@ -15,15 +15,15 @@ interface Route {
 const routers: Route[] = [
   {
     path: '/',
-    element: <Navigate to="/page1" />
+    element: <Navigate to="/home" />
   },
   {
     path: '/',
     element: <PrivateRoute auth={true}><Home /></PrivateRoute>,
     children: [
       {
-        path: "/page1",
-        name: 'page1',
+        path: "/home",
+        name: 'home',
         element: <PrivateRoute auth={true}><Page1 /></PrivateRoute>, 
         auth: true // 需要认证的路由
       },
