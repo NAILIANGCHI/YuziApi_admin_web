@@ -42,7 +42,7 @@ const routers: Route[] = [
   },
   {
     path: "*",
-    element: <Not404 />
+    element: <PrivateRoute auth={true}> <Not404 /> </PrivateRoute>
   }
 ];
 
