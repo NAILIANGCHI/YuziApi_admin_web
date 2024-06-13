@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import * as Icons from '@ant-design/icons';
-import { Button, Modal, List, Pagination, Input } from 'antd';
+import { Button, List, Pagination, Input, Modal } from 'antd';
 
 const { Search } = Input;
 
@@ -9,11 +9,13 @@ interface ExpAntDesignIconProps {
 }
 
 const ExpAntDesignIcon: React.FC<ExpAntDesignIconProps> = ({ onIconSelect }) => {
-  const [visible, setVisible] = useState(false);
+  
+  // const [visible, setVisible] = useState(false); # 官方废弃
+  const [open, setOpen] = useState(true)
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const [pageSize, setPageSize] = useState(20); // 添加分页条数状态
+  const pageSize = 20; // 每页展示的图标数量
 
   // 获取所有以 'Outlined' 结尾的图标名称
   const iconNames = Object.keys(Icons).filter(name => name.endsWith('Outlined'));
@@ -30,15 +32,12 @@ const ExpAntDesignIcon: React.FC<ExpAntDesignIconProps> = ({ onIconSelect }) => 
   const handleIconClick = (iconName: string) => {
     setSelectedIcon(iconName);
     onIconSelect(iconName);
-    setVisible(false); // 选择图标后关闭模态窗口
+    setOpen(false); // 选择图标后关闭模态窗口
   };
 
   // 处理分页变化
-  const handlePageChange = (page: number, newPageSize?: number) => {
+  const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    if (newPageSize) {
-      setPageSize(newPageSize); // 更新分页条数
-    }
   };
 
   // 处理搜索输入变化
@@ -51,13 +50,14 @@ const ExpAntDesignIcon: React.FC<ExpAntDesignIconProps> = ({ onIconSelect }) => 
 
   return (
     <div>
-      <Button onClick={() => setVisible(true)}>选择图标</Button>
+      <Button onClick={() => setOpen(true)}>选择图标</Button>
       {SelectedIconComponent && <SelectedIconComponent style={{ fontSize: '24px', marginLeft: '10px' }} />}
-
+      
       <Modal
         title="选择图标"
-        visible={visible}
-        onCancel={() => setVisible(false)}
+        // visible={visible}
+        open = {open}
+        onCancel={() => setOpen(false)}
         footer={null}
         width={800}
       >
@@ -73,7 +73,7 @@ const ExpAntDesignIcon: React.FC<ExpAntDesignIconProps> = ({ onIconSelect }) => 
           renderItem={iconName => {
             const IconComponent = (Icons as any)[iconName];
             return (
-              <List.Item key={iconName} onClick={() => handleIconClick(iconName)}>
+              <List.Item onClick={() => handleIconClick(iconName)}>
                 <IconComponent style={{ fontSize: '24px', cursor: 'pointer' }} />
                 <div>{iconName}</div>
               </List.Item>
@@ -85,10 +85,7 @@ const ExpAntDesignIcon: React.FC<ExpAntDesignIconProps> = ({ onIconSelect }) => 
           pageSize={pageSize}
           total={filteredIcons.length}
           onChange={handlePageChange}
-          onShowSizeChange={handlePageChange} // 处理分页条数变化
           style={{ textAlign: 'center', marginTop: '16px' }}
-          showSizeChanger
-          pageSizeOptions={['10', '20', '50', '100']} // 提供分页条数选择
         />
       </Modal>
     </div>
