@@ -11,11 +11,11 @@ interface ExpAntDesignIconProps {
 const ExpAntDesignIcon: React.FC<ExpAntDesignIconProps> = ({ onIconSelect }) => {
   
   // const [visible, setVisible] = useState(false); # 官方废弃
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const pageSize = 20; // 每页展示的图标数量
+  const [pageSize, setPageSize] = useState(20); // 添加分页条数状态
 
   // 获取所有以 'Outlined' 结尾的图标名称
   const iconNames = Object.keys(Icons).filter(name => name.endsWith('Outlined'));
@@ -36,8 +36,11 @@ const ExpAntDesignIcon: React.FC<ExpAntDesignIconProps> = ({ onIconSelect }) => 
   };
 
   // 处理分页变化
-  const handlePageChange = (page: number) => {
+  const handlePageChange = (page: number, newPageSize: number) => {
     setCurrentPage(page);
+    if(newPageSize) {
+      setPageSize(newPageSize)
+    }
   };
 
   // 处理搜索输入变化
@@ -85,6 +88,7 @@ const ExpAntDesignIcon: React.FC<ExpAntDesignIconProps> = ({ onIconSelect }) => 
           pageSize={pageSize}
           total={filteredIcons.length}
           onChange={handlePageChange}
+          onShowSizeChange={handlePageChange} // 处理分页条数变化
           style={{ textAlign: 'center', marginTop: '16px' }}
         />
       </Modal>

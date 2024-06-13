@@ -25,10 +25,10 @@ const routers: Route[] = [
         path: "/home",
         name: 'home',
         element: <PrivateRoute auth={true}><Page1 /></PrivateRoute>, 
-        auth: true // 需要认证的路由
+        auth: true
       },
       {
-        path: "setting",
+        path: "/system-settings",
         name: 'setting',
         element: <PrivateRoute auth={true}><Setting /></PrivateRoute>, 
         auth: true 
