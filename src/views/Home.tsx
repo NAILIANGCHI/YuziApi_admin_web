@@ -1,23 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   DesktopOutlined,
-  FileOutlined,
   PieChartOutlined,
+  SettingOutlined,
   TeamOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Layout, Menu, Breadcrumb } from 'antd';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import DropDownMenu from '@/compontes/DropDownMenu/DropDownMenu';
 
 const { Header, Content, Footer, Sider } = Layout;
 
-type MenuItem = Required<MenuProps>['items'][number];
+type MenuItem = {
+  key: string;
+  icon?: React.ReactNode;
+  label: React.ReactNode;
+  children?: MenuItem[];
+};
 
 function getItem(
   label: React.ReactNode,
-  key: React.Key,
+  key: string,
   icon?: React.ReactNode,
   children?: MenuItem[],
 ): MenuItem {
@@ -26,58 +30,75 @@ function getItem(
     icon,
     children,
     label,
-  } as MenuItem;
+  };
 }
 
 const items: MenuItem[] = [
   getItem('Option 1', '/home', <PieChartOutlined />),
-  getItem('Option 2', 'setting', <DesktopOutlined />),
-  getItem('User', 'sub1', <UserOutlined />, [
-    getItem('Tom', 'setting1'),
-    getItem('Bill', '4'),
-    getItem('Alex', '5'),
+  getItem('Option 2', '/setting', <DesktopOutlined />),
+  getItem('User', '/sub1', <UserOutlined />, [
+    getItem('Tom', '/setting1'),
+    getItem('Bill', '/4'),
+    getItem('Alex', '/5'),
   ]),
-  getItem('Team', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '7')]),
-  getItem('Files', '9', <FileOutlined />),
+  getItem('Team', '/sub2', <TeamOutlined />, [
+    getItem('Team 1', '/6'),
+    getItem('Team 2', '/7'),
+  ]),
+  getItem('系统设置', '/system-settings', <SettingOutlined />),
 ];
 
-export default function Home() {
+const Home: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const navgateTo = useNavigate();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
+  const { pathname } = location;
 
-  const changeMenu = (e: {key:string}) => {
-    console.log("点击了", e.key)
-    navgateTo(e.key)
-  }
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([pathname]);
+
+  useEffect(() => {
+    setSelectedKeys([pathname]);
+  }, [pathname]);
+
+  const changeMenu = ({ key }: { key: React.Key }) => {
+    navigate(key.toString());
+  };
+
+  const theme = {
+    colorBgContainer: '#001529',
+    borderRadiusLG: '5px',
+    colorBody: '#FFFFFF',
+    bgColor: '#E6EBE6'
+  };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
+    <Layout style={{ minHeight: '100vh'}}>
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={(value) => setCollapsed(value)}
+        collapsedWidth={80} // 自定义侧边栏收起后的宽度
+        width={200} // 自定义侧边栏展开时的宽度
+      >
         <div className="demo-logo-vertical" />
-        <h1 style={{color: 'white', fontWeight: 'bold', fontSize: 20, textAlign: 'center', margin: 10}}>🐟后台管理</h1>
-        <Menu theme="dark" defaultSelectedKeys={['/home']} mode="inline" items={items} onClick={changeMenu}/>
+        {/* 根据侧边栏的收起/展开状态，动态显示不同的标题 */}
+        <h1 style={{ color: 'white', fontWeight: 'bold', fontSize: 20, textAlign: 'center', margin: 10 }}>
+          {collapsed ? '🐟' : '🐟后台管理'}
+        </h1>
+        <Menu theme="dark" mode="inline" selectedKeys={selectedKeys} onClick={changeMenu} items={items} />
       </Sider>
-      <Layout>
-        <div style={{ width: 'auto', marginTop: '20px', position: 'fixed', right: 0, padding: '0 20px'}}>
-          <DropDownMenu />
-        </div>
-        <Header style={{ padding: '5px 0 0 10px', background: colorBgContainer, margin: '55px 15px 10px 15px', borderRadius: borderRadiusLG }} >
-          <Breadcrumb style={{ margin: '16px 0' }}>
-            <Breadcrumb
-              items={[
-                {
-                  title: 'Home',
-                }
-              ]}
-            />
-          </Breadcrumb>
+      <Layout style={{ background: theme.bgColor }}>
+        <Header style={{ padding: '5px', height: '50px', background: theme.colorBgContainer }}>
+          <div className='header-style' style={{ width: 'auto', position: 'fixed', right: 20, top: 0}}>
+            <DropDownMenu />
+          </div>
         </Header>
-        <Content style={{ margin: '0 16px', padding: 24, minHeight: 360, background: colorBgContainer, borderRadius: borderRadiusLG }} >
-          {/* 窗口部分 */}
+        {/* 面包屑 */}
+        <Breadcrumb style={{ margin: '16px' }}>
+          <Breadcrumb.Item>Home</Breadcrumb.Item>
+        </Breadcrumb>
+        <Content style={{ margin: '0 16px', padding: 24, minHeight: 360, background: theme.colorBody, borderRadius: theme.borderRadiusLG }}>
           <Outlet />
         </Content>
         <Footer style={{ textAlign: 'center' }}>
@@ -86,4 +107,6 @@ export default function Home() {
       </Layout>
     </Layout>
   );
-}
+};
+
+export default Home;
