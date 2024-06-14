@@ -40,7 +40,7 @@ export default function DropDownMenu() {
           key: '1',
           label: (
             <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-              1st menu item
+              个人中心
             </a>
           ),
         },
@@ -78,7 +78,7 @@ export default function DropDownMenu() {
     <Dropdown menu={{ items }}>
     <a onClick={(e) => e.preventDefault()}>
       <Space>
-        <SettingFilled style={{fontSize: '20px'}}/>
+        <SettingFilled style={{fontSize: '20px', color: 'white'}}/>
         <DownOutlined />
       </Space>
     </a>

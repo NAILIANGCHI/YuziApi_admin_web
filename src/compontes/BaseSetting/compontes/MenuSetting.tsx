@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import * as Icons from '@ant-design/icons';
 import ExpAntDesignIcon from '@/compontes/ExpAntDesingIcon/ExpAntDesignIcon';
-import { Tabs, Form, Input, Button, Checkbox, message } from 'antd';
+import { Form, Input, Button, message, Table } from 'antd';
+import type { TableColumnsType } from 'antd';
 import { addMenu } from '@/utils/request/api/apiList';
 import { AxiosResponse, AxiosError } from 'axios';
 
-const { TabPane } = Tabs;
+
+
+interface DataType {
+    key: React.Key;
+    name: string;
+    age: number;
+    address: string;
+  }
 
 interface IconSelectorProps {
   value?: string;
@@ -45,9 +53,10 @@ const IconSelector: React.FC<IconSelectorProps> = ({ value, onChange }) => {
   );
 };
 
-export default function Setting() {
-  const [form] = Form.useForm();
-  const [messageApi, contextHolder] = message.useMessage();
+  
+export default function MenuSetting() {
+    const [form] = Form.useForm();
+    const [messageApi, contextHolder] = message.useMessage();
 
   const success = (message: string) => {
     messageApi.open({
@@ -68,7 +77,7 @@ export default function Setting() {
     console.log('菜单设置表单值:', formData);
     const data: AddmenuInterFace = {
       displayName: values.menuName,
-      name: values.menuPath,
+      name: '/' + values.menuPath,
       icon: values.menuIcon,
     };
 
@@ -79,7 +88,7 @@ export default function Setting() {
         console.log(responseData.code);
         errorWindows(responseData.message);
       } else {
-        success('提交成功');
+        success('添加成功');
       }
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -91,24 +100,63 @@ export default function Setting() {
     }
   };
 
-  const onFinishOther = async (values: any) => {
-    console.log('其他设置表单值:', values);
-    // try {
-    //   const response = await axios.post('/api/other-settings', values);
-    //   console.log('服务器响应:', response.data);
-    //   message.success('设置保存成功');
-    // } catch (error) {
-    //   console.error('提交表单失败:', error);
-    //   message.error('设置保存失败');
-    // }
-  };
+  
+const columns: TableColumnsType<DataType> = [
+    {
+      title: '菜单名',
+      width: 100,
+      dataIndex: 'name',
+      key: 'name',
+      fixed: 'left',
+    },
+    {
+      title: '创建时间',
+      width: 100,
+      dataIndex: 'age',
+      key: 'age',
+      fixed: 'left',
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'address',
+      key: '1',
+      width: 100,
+    },
+    {
+      title: '路径名',
+      dataIndex: 'address',
+      key: '1',
+      width: 100,
+    },
+    {
+        title: 'Icon图标',
+        dataIndex: 'address',
+        key: '1',
+        width: 100,
+    },
+    // { title: 'Column 8', dataIndex: 'address', key: '8' },
+    {
+      title: '操作',
+      key: 'operation',
+      fixed: 'right',
+      width: 100,
+      render: () => <div><a>修改</a> | <a>删除</a></div>
+    },
+  ];
 
+  const data: DataType[] = [];
+  for (let i = 0; i < 15; i++) {
+    data.push({
+      key: i,
+      name: `Edward ${i}`,
+      age: 32,
+      address: `London Park no. ${i}`,
+    });
+  }
   return (
     <div>
-      {contextHolder}
-      <Tabs defaultActiveKey="1">
-        <TabPane tab="添加菜单" key="1">
-          <Form form={form} name="menu-settings" onFinish={onFinishMenu}>
+        {contextHolder}
+        <Form form={form} name="menu-settings" onFinish={onFinishMenu} layout="inline">
             <Form.Item
               label="菜单名称"
               name="menuName"
@@ -137,25 +185,8 @@ export default function Setting() {
                 添加
               </Button>
             </Form.Item>
-          </Form>
-        </TabPane>
-        <TabPane tab="其他设置" key="2">
-          <Form name="other-settings" onFinish={onFinishOther}>
-            <Form.Item
-              label="设置项1"
-              name="setting1"
-              valuePropName="checked"
-            >
-              <Checkbox>启用设置项1</Checkbox>
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                保存
-              </Button>
-            </Form.Item>
-          </Form>
-        </TabPane>
-      </Tabs>
+            <Table columns={columns} dataSource={data} scroll={{ x: 1500, y: 500 }} style={{marginTop: '30px'}}/>
+        </Form>
     </div>
-  );
+  )
 }
