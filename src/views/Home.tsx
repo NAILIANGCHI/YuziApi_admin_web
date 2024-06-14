@@ -9,6 +9,8 @@ import {
 import { Layout, Menu, Breadcrumb } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import DropDownMenu from '@/compontes/DropDownMenu/DropDownMenu';
+import { stopLoading } from '@/store/loadingSlice';
+import { useDispatch } from 'react-redux';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -19,86 +21,166 @@ type MenuItem = {
   children?: MenuItem[];
 };
 
-function getItem(
-  label: React.ReactNode,
-  key: string,
-  icon?: React.ReactNode,
-  children?: MenuItem[],
-): MenuItem {
-  return {
-    key,
-    icon,
-    children,
-    label,
-  };
-}
-
 const items: MenuItem[] = [
-  getItem('Option 1', '/home', <PieChartOutlined />),
-  getItem('Option 2', '/setting', <DesktopOutlined />),
-  getItem('User', '/sub1', <UserOutlined />, [
-    getItem('Tom', '/setting1'),
-    getItem('Bill', '/4'),
-    getItem('Alex', '/5'),
-  ]),
-  getItem('Team', '/sub2', <TeamOutlined />, [
-    getItem('Team 1', '/6'),
-    getItem('Team 2', '/7'),
-  ]),
-  getItem('系统设置', '/system-settings', <SettingOutlined />),
+  { key: '/home', label: '首页', icon: <PieChartOutlined /> },
+  { key: '/setting22', label: 'Option 2', icon: <DesktopOutlined /> },
+  {
+    key: '/sub1',
+    label: 'User',
+    icon: <UserOutlined />,
+    children: [
+      { key: '/setting1', label: 'Tom' },
+      { key: '/4', label: 'Bill' },
+      { key: '/5', label: 'Alex' },
+    ],
+  },
+  {
+    key: '/sub2',
+    label: 'Team',
+    icon: <TeamOutlined />,
+    children: [
+      { key: '/6', label: 'Team 1' },
+      { key: '/7', label: 'Team 2' },
+    ],
+  },
+  {
+    key: '/setting',
+    label: '设置',
+    icon: <SettingOutlined />,
+    children: [
+      { key: '/setting12', label: '用户管理' },
+      { key: '/system-settings', label: '系统设置' },
+      { key: '/58', label: '页面设置' },
+    ],
+  },
 ];
+
+const findOpenKeys = (pathname: string, items: MenuItem[]): string[] => {
+  for (const item of items) {
+    if (item.children) {
+      for (const child of item.children) {
+        if (child.key === pathname) {
+          return [item.key];
+        }
+      }
+    }
+  }
+  return [];
+};
 
 const Home: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
 
   const { pathname } = location;
 
   const [selectedKeys, setSelectedKeys] = useState<string[]>([pathname]);
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   useEffect(() => {
     setSelectedKeys([pathname]);
-  }, [pathname]);
+    setOpenKeys(findOpenKeys(pathname, items));
 
-  const changeMenu = ({ key }: { key: React.Key }) => {
+    const timer = setTimeout(() => {
+      dispatch(stopLoading());
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [pathname, dispatch]);
+
+  const changeMenu = ({ key, keyPath }: { key: React.Key; keyPath: React.Key[] }) => {
     navigate(key.toString());
+    setOpenKeys([keyPath[keyPath.length - 1].toString()]);
+  };
+
+  const onCollapse = (collapsed: boolean) => {
+    setCollapsed(collapsed);
+  };
+
+  const onOpenChange = (keys: string[]) => {
+    setOpenKeys(keys);
   };
 
   const theme = {
     colorBgContainer: '#001529',
     borderRadiusLG: '5px',
     colorBody: '#FFFFFF',
-    bgColor: '#E6EBE6'
+    bgColor: '#E6EBE6',
   };
 
   return (
-    <Layout style={{ minHeight: '100vh'}}>
+    <Layout style={{ minHeight: '100vh' }}>
       <Sider
         collapsible
         collapsed={collapsed}
-        onCollapse={(value) => setCollapsed(value)}
-        collapsedWidth={80} // 自定义侧边栏收起后的宽度
-        width={200} // 自定义侧边栏展开时的宽度
+        onCollapse={onCollapse}
+        collapsedWidth={80}
+        width={200}
       >
         <div className="demo-logo-vertical" />
-        {/* 根据侧边栏的收起/展开状态，动态显示不同的标题 */}
-        <h1 style={{ color: 'white', fontWeight: 'bold', fontSize: 20, textAlign: 'center', margin: 10 }}>
+        <h1
+          style={{
+            color: 'white',
+            fontWeight: 'bold',
+            fontSize: 20,
+            textAlign: 'center',
+            margin: 15,
+          }}
+        >
           {collapsed ? '🐟' : '🐟后台管理'}
         </h1>
-        <Menu theme="dark" mode="inline" selectedKeys={selectedKeys} onClick={changeMenu} items={items} />
+        <Menu
+          theme="dark"
+          mode="inline"
+          selectedKeys={selectedKeys}
+          onClick={changeMenu}
+          openKeys={openKeys}
+          onOpenChange={onOpenChange}
+        >
+          {items.map((item) =>
+            item.children ? (
+              <Menu.SubMenu key={item.key} icon={item.icon} title={item.label}>
+                {item.children.map((child) => (
+                  <Menu.Item key={child.key}>{child.label}</Menu.Item>
+                ))}
+              </Menu.SubMenu>
+            ) : (
+              <Menu.Item key={item.key} icon={item.icon}>
+                {item.label}
+              </Menu.Item>
+            )
+          )}
+        </Menu>
       </Sider>
       <Layout style={{ background: theme.bgColor }}>
-        <Header style={{ padding: '5px', height: '50px', background: theme.colorBgContainer }}>
-          <div className='header-style' style={{ width: 'auto', position: 'fixed', right: 20, top: 0}}>
+        <Header
+          style={{
+            padding: '5px',
+            height: '50px',
+            background: theme.colorBgContainer,
+          }}
+        >
+          <div
+            className="header-style"
+            style={{ width: 'auto', position: 'absolute', right: 20, top: 0 }}
+          >
             <DropDownMenu />
           </div>
         </Header>
-        {/* 面包屑 */}
         <Breadcrumb style={{ margin: '16px' }}>
           <Breadcrumb.Item>Home</Breadcrumb.Item>
         </Breadcrumb>
-        <Content style={{ margin: '0 16px', padding: 24, minHeight: 360, background: theme.colorBody, borderRadius: theme.borderRadiusLG }}>
+        <Content
+          style={{
+            margin: '0 16px',
+            padding: 24,
+            minHeight: 360,
+            background: theme.colorBody,
+            borderRadius: theme.borderRadiusLG,
+          }}
+        >
           <Outlet />
         </Content>
         <Footer style={{ textAlign: 'center' }}>

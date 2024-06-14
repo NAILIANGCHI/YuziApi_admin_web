@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import Home from "@/views/Home";
-import { Setting, Page1, Not404, Login } from "./routerElement";
+import { BaseSetting, Page1, Not404, Login } from "./routerElement";
 import { ReactNode } from "react";
 import PrivateRoute from '@/router/PrivateRoute';
 
@@ -19,7 +19,7 @@ const routers: Route[] = [
   },
   {
     path: '/',
-    element: <PrivateRoute auth={true}><Home /></PrivateRoute>,
+    element: <PrivateRoute auth={true}><Home/></PrivateRoute>,
     children: [
       {
         path: "/home",
@@ -29,8 +29,8 @@ const routers: Route[] = [
       },
       {
         path: "/system-settings",
-        name: 'setting',
-        element: <PrivateRoute auth={true}><Setting /></PrivateRoute>, 
+        name: 'baseSetting',
+        element: <PrivateRoute auth={true}><BaseSetting /></PrivateRoute>, 
         auth: true 
       }
     ]
