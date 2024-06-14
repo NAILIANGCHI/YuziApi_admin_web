@@ -4,6 +4,8 @@ import ExpAntDesignIcon from '@/compontes/ExpAntDesingIcon/ExpAntDesignIcon';
 import { Form, Input, Button, message, Table } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { addMenu } from '@/utils/request/api/apiList';
+import { stopLoading, startLoading } from '@/store/loadingSlice';
+import { useDispatch } from 'react-redux';
 import { AxiosResponse, AxiosError } from 'axios';
 
 
@@ -57,6 +59,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({ value, onChange }) => {
 export default function MenuSetting() {
     const [form] = Form.useForm();
     const [messageApi, contextHolder] = message.useMessage();
+    const dispatch = useDispatch();
 
   const success = (message: string) => {
     messageApi.open({
@@ -73,6 +76,7 @@ export default function MenuSetting() {
   };
 
   const onFinishMenu = async (values: any) => {
+    dispatch(startLoading());
     const formData = { ...values, icon: values.menuIcon };
     console.log('菜单设置表单值:', formData);
     const data: AddmenuInterFace = {
@@ -86,15 +90,19 @@ export default function MenuSetting() {
       const responseData = response.data;
       if (responseData.code !== '200') {
         console.log(responseData.code);
+        dispatch(stopLoading());
         errorWindows(responseData.message);
       } else {
+        dispatch(stopLoading());
         success('添加成功');
       }
     } catch (error) {
       if (error instanceof AxiosError) {
         const errorData: ErrorData = error.response?.data || { message: error.message };
+        dispatch(stopLoading());
         errorWindows(errorData.message);
       } else {
+        dispatch(stopLoading());
         errorWindows("发生意外错误");
       }
     }
