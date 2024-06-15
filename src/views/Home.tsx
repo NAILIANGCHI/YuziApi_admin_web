@@ -179,6 +179,8 @@ const Home: React.FC = () => {
             minHeight: 360,
             background: theme.colorBody,
             borderRadius: theme.borderRadiusLG,
+            height: 'calc(0vh - 160px)', 
+            overflowY: 'auto'  
           }}
         >
           <Outlet />
