@@ -1,3 +1,4 @@
+import React from "react";
 import http from "./axios";
 
 const {request} = http
@@ -49,5 +50,14 @@ export const getMenuList = async () => {
         url: '/menu/getMenuList',
         method: 'get',
         data: {}
+    });
+}
+
+// 更新按钮开关
+export const updateMenuStatus = async (key: React.Key) => {
+    return await request({
+        url: `/menu/updateMenuCheck/${key}`,
+        method: 'post',
+        data: {} 
     });
 }
