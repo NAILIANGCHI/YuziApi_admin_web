@@ -1,21 +1,21 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as Icons from '@ant-design/icons';
 import ExpAntDesignIcon from '@/compontes/ExpAntDesingIcon/ExpAntDesignIcon';
 import { Form, Input, Button, message, Table } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { addMenu } from '@/utils/request/api/apiList';
+import { addMenu, getMenuList as requestMenuList } from '@/utils/request/api/apiList';
 import { stopLoading, startLoading } from '@/store/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { AxiosResponse, AxiosError } from 'axios';
 
-
-
 interface DataType {
-    key: React.Key;
-    name: string;
-    age: number;
-    address: string;
-  }
+  key: React.Key;
+  displayName: string;
+  createTime: string;
+  updateTime: string;
+  name: string;
+  icon: string;
+}
 
 interface IconSelectorProps {
   value?: string;
@@ -55,11 +55,11 @@ const IconSelector: React.FC<IconSelectorProps> = ({ value, onChange }) => {
   );
 };
 
-  
 export default function MenuSetting() {
-    const [form] = Form.useForm();
-    const [messageApi, contextHolder] = message.useMessage();
-    const dispatch = useDispatch();
+  const [form] = Form.useForm();
+  const [messageApi, contextHolder] = message.useMessage();
+  const dispatch = useDispatch();
+  const [menuListData, setMenuListData] = useState<DataType[]>([]);
 
   const success = (message: string) => {
     messageApi.open({
@@ -95,6 +95,8 @@ export default function MenuSetting() {
       } else {
         dispatch(stopLoading());
         success('添加成功');
+        // 重新获取菜单列表
+        getMenuList();
       }
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -108,93 +110,120 @@ export default function MenuSetting() {
     }
   };
 
-  
-const columns: TableColumnsType<DataType> = [
+  const columns: TableColumnsType<DataType> = [
     {
       title: '菜单名',
       width: 100,
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'displayName',
+      key: 'displayName',
       fixed: 'left',
     },
     {
       title: '创建时间',
       width: 100,
-      dataIndex: 'age',
-      key: 'age',
+      dataIndex: 'createTime',
+      key: 'createTime',
       fixed: 'left',
     },
     {
       title: '更新时间',
-      dataIndex: 'address',
-      key: '1',
+      dataIndex: 'updateTime',
+      key: 'updateTime',
       width: 100,
     },
     {
       title: '路径名',
-      dataIndex: 'address',
-      key: '1',
+      dataIndex: 'name',
+      key: 'name',
       width: 100,
     },
     {
-        title: 'Icon图标',
-        dataIndex: 'address',
-        key: '1',
-        width: 100,
+      title: 'Icon图标',
+      dataIndex: 'icon',
+      key: 'icon',
+      width: 100,
+      render: (icon: string) => {
+        const IconComponent = (Icons as any)[icon];
+        return IconComponent ? <IconComponent style={{ fontSize: '24px' }} /> : null;
+      },
     },
-    // { title: 'Column 8', dataIndex: 'address', key: '8' },
     {
       title: '操作',
       key: 'operation',
       fixed: 'right',
       width: 100,
-      render: () => <div><a>修改</a> | <a>删除</a></div>
+      render: () => <div><a>修改</a> |<a>管理</a> | <a>删除</a></div>
     },
   ];
 
-  const data: DataType[] = [];
-  for (let i = 0; i < 15; i++) {
-    data.push({
-      key: i,
-      name: `Edward ${i}`,
-      age: 32,
-      address: `London Park no. ${i}`,
-    });
+  const getMenuList = async () => {
+    dispatch(startLoading());
+    try {
+      const response: AxiosResponse = await requestMenuList();
+      const responseData = response.data;
+      if (responseData.code !== '200') {
+        console.log(responseData.code);
+        dispatch(stopLoading());
+        errorWindows(responseData.message);
+      } else if (responseData.data.length === 0) {
+        dispatch(stopLoading());
+        errorWindows("服务器获取失败");
+      } else {
+        dispatch(stopLoading());
+        setMenuListData(responseData.data);
+        console.log(responseData.data);
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        const errorData: ErrorData = error.response?.data || { message: error.message };
+        dispatch(stopLoading());
+        errorWindows(errorData.message);
+      } else {
+        dispatch(stopLoading());
+        errorWindows("发生意外错误");
+      }
+    }
   }
+
+  useEffect(() => {
+    getMenuList();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <div>
-        {contextHolder}
-        <Form form={form} name="menu-settings" onFinish={onFinishMenu} layout="inline">
-            <Form.Item
-              label="菜单名称"
-              name="menuName"
-              rules={[{ required: true, message: '请输入菜单名称!' }]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label="菜单路径"
-              name="menuPath"
-              rules={[{ required: true, message: '请输入菜单路径!' }]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label="菜单图标"
-              name="menuIcon"
-              rules={[{ required: true, message: '请选择一个菜单图标!' }]}
-              valuePropName="value"
-              getValueFromEvent={(value) => value}
-            >
-              <IconSelector />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                添加
-              </Button>
-            </Form.Item>
-            <Table columns={columns} dataSource={data} scroll={{ x: 1500, y: 500 }} style={{marginTop: '30px'}}/>
-        </Form>
+    <div> 
+      {contextHolder}
+      <Form form={form} name="menu-settings" onFinish={onFinishMenu} layout="inline">
+        <Form.Item
+          label="菜单名称"
+          name="menuName"
+          rules={[{ required: true, message: '请输入菜单名称!' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="菜单路径"
+          name="menuPath"
+          rules={[{ required: true, message: '请输入菜单路径!' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="菜单图标"
+          name="menuIcon"
+          rules={[{ required: true, message: '请选择一个菜单图标!' }]}
+          valuePropName="value"
+          getValueFromEvent={(value) => value}
+        >
+          <IconSelector />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+            添加
+          </Button>
+        </Form.Item>
+      </Form>
+      <Table columns={columns} dataSource={menuListData} scroll={{ x: 1500, y: 500 }} style={{ marginTop: '30px' }} />
     </div>
-  )
+  );
 }

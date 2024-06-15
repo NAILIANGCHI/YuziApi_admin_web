@@ -32,3 +32,22 @@ export const addMenu = async (data: any) => {
         }
     });
 }
+
+
+// 获取微博热搜前20
+export const getWeiboHot = async () => {
+    return await request({
+        url: '/jx/weibo',
+        method: 'get',
+        data: {}
+    });
+}
+
+// 获取父菜单列表
+export const getMenuList = async () => {
+    return await request({
+        url: '/menu/getMenuList',
+        method: 'get',
+        data: {}
+    });
+}
