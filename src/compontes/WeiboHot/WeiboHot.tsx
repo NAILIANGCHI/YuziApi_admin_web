@@ -7,7 +7,7 @@ import { AxiosResponse, AxiosError } from 'axios';
 
 import { Typography, Divider, Collapse } from 'antd';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { Panel } = Collapse;
 
 interface WeiboItem {
@@ -70,9 +70,9 @@ const WeiboHot: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ margin: '0 auto' }}>
+    <div>
       {contextHolder}
-      <Title level={2} style={{ textAlign: 'center' }}>微博热搜</Title>
+      {/* <Title level={2} style={{ textAlign: 'center' }}>微博热搜</Title> */}
       <Divider />
       <Collapse defaultActiveKey={['1']} ghost>
         {dataSource.map((item) => (
