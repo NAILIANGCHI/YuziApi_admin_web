@@ -93,10 +93,8 @@ export default function MenuSetting() {
             const responseData = response.data;
             if (responseData.code !== '200') {
                 console.log(responseData.code);
-                dispatch(stopLoading());
                 errorWindows(responseData.message);
             } else {
-                dispatch(stopLoading());
                 success('添加成功');
                 // 重新获取菜单列表
                 getMenuList();
@@ -104,12 +102,12 @@ export default function MenuSetting() {
         } catch (error) {
             if (error instanceof AxiosError) {
                 const errorData: ErrorData = error.response?.data || { message: error.message };
-                dispatch(stopLoading());
                 errorWindows(errorData.message);
             } else {
-                dispatch(stopLoading());
                 errorWindows("发生意外错误");
             }
+        } finally {
+            dispatch(stopLoading)
         }
     };
 

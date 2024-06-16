@@ -42,25 +42,22 @@ const WeiboHot: React.FC = () => {
       const responseData = response.data;
       if (responseData.code !== '200') {
         console.log(responseData.code);
-        dispatch(stopLoading());
         errorWindows(responseData.message);
       } else if (responseData.data.length === 0) {
-        dispatch(stopLoading());
         errorWindows("服务器获取失败");
       } else {
-        dispatch(stopLoading());
         setDataSource(responseData.data);
         console.log(responseData.data);
       }
     } catch (error) {
       if (error instanceof AxiosError) {
         const errorData: ErrorData = error.response?.data || { message: error.message };
-        dispatch(stopLoading());
         errorWindows(errorData.message);
       } else {
-        dispatch(stopLoading());
         errorWindows("发生意外错误");
       }
+    } finally {
+        dispatch(stopLoading)
     }
   }
 
