@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as Icons from '@ant-design/icons';
 import ExpAntDesignIcon from '@/compontes/ExpAntDesingIcon/ExpAntDesignIcon';
-import { Form, Input, Button, message, Table, Switch } from 'antd';
+import { Form, Input, Button, message, Table, Switch, Modal } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { addMenu, getMenuList as requestMenuList, updateMenuStatus } from '@/utils/request/api/apiList';
+import { addMenu, getMenuList as requestMenuList, updateMenuStatus, delMenuItem } from '@/utils/request/api/apiList';
 import { stopLoading, startLoading } from '@/store/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { AxiosResponse, AxiosError } from 'axios';
@@ -92,7 +92,6 @@ export default function MenuSetting() {
             const response: AxiosResponse = await addMenu(data);
             const responseData = response.data;
             if (responseData.code !== '200') {
-                console.log(responseData.code);
                 errorWindows(responseData.message);
             } else {
                 success('添加成功');
@@ -192,11 +191,45 @@ export default function MenuSetting() {
             width: 100,
             render: (_ , record) => (
                 <div key={record.key}>
-                    <a>修改</a> | <a>管理</a> | <a>删除</a>
+                    <a>修改</a> | <a>管理</a> | <a onClick={() => confirmDelete(record.key)}>删除</a>
                 </div>
             ),
         },
     ];
+
+    const confirmDelete = (key: React.Key): void => {
+        Modal.confirm({
+            title: '确认删除',
+            content: '你确定要删除这个菜单吗？',
+            okText: '确认',
+            cancelText: '取消',
+            onOk: () => delMenu(key),
+        });
+    };
+
+
+    const delMenu = async (key: React.Key) => {
+        dispatch(startLoading());
+        try {
+            const response: AxiosResponse = await delMenuItem(key);
+            const responseData = response.data;
+            if (responseData.code === '200') {
+                success('删除成功');
+                getMenuList();
+            } else {
+                errorWindows(responseData.message);
+            }
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                const errorData: ErrorData = error.response?.data || { message: error.message };
+                errorWindows(errorData.message);
+            } else {
+                errorWindows("发生意外错误");
+            }
+        } finally {
+            dispatch(stopLoading());
+        }
+    };
 
     const getMenuList = async () => {
         dispatch(startLoading());
@@ -218,7 +251,7 @@ export default function MenuSetting() {
                     updateTime: item.updateTime,
                     name: item.name,
                     icon: item.icon,
-                    isStart: item.isStart, // 假设你的 API 返回 isStart 字段
+                    isStart: item.isStart,
                 }));
                 dispatch(stopLoading());
                 setMenuListData(formattedData);

@@ -1,5 +1,7 @@
 import React from "react";
 import http from "./axios";
+import axios, { AxiosResponse, AxiosError } from 'axios';
+
 
 const {request} = http
 
@@ -61,3 +63,26 @@ export const updateMenuStatus = async (key: React.Key) => {
         data: {} 
     });
 }
+
+// 删除菜单通过id
+export const delMenuItem = async (id: React.Key) => {
+    return await request({
+        url: `/menu/delMenu/${id}`,
+        method: 'post',
+        data: {} 
+    })
+}
+
+// 通用的 GET 请求函数
+export const httpGetRequest = async (url: string, params?: any): Promise<AxiosResponse> => {
+    try {
+        const response = await axios.get(url, { params });
+        return response;
+    } catch (error) {
+        if (error instanceof AxiosError) {
+            throw error.response?.data || { message: error.message };
+        } else {
+            throw { message: '发生意外错误' };
+        }
+    }
+};
