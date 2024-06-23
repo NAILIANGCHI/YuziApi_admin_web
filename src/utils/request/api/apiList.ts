@@ -58,7 +58,7 @@ export const getMenuList = async () => {
 // 更新按钮开关
 export const updateMenuStatus = async (key: React.Key) => {
     return await request({
-        url: `/menu/updateMenuCheck/${key}`,
+        url: `/menu/update/MenuCheck/${key}`,
         method: 'post',
         data: {} 
     });
