@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import Home from "@/views/Home";
-import { BaseSetting, Homepage, Not404, Login } from "./routerElement";
+import { BaseSetting, Homepage, Not404, Login, ChildrenMenu } from "./routerElement";
 import { ReactNode } from "react";
 import PrivateRoute from '@/router/PrivateRoute';
 
@@ -32,6 +32,11 @@ const routers: Route[] = [
         name: 'baseSetting',
         element: <PrivateRoute auth={true}><BaseSetting /></PrivateRoute>, 
         auth: true 
+      },
+      {
+        path: "/chindren-menu/:id",
+        name: 'chindrenMenu',
+        element: <PrivateRoute auth={true}><ChildrenMenu /></PrivateRoute>
       }
     ]
   },

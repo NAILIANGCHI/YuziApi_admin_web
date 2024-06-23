@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import * as Icons from '@ant-design/icons';
-import ExpAntDesignIcon from '@/compontes/ExpAntDesingIcon/ExpAntDesignIcon';
 import { Form, Input, Button, message, Table, Switch, Modal } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { addMenu, getMenuList as requestMenuList, updateMenuStatus, delMenuItem } from '@/utils/request/api/apiList';
+import { addchildrenMenu, requestChildrenMenuList, updateChaildrenMenuStatus, delChaildrenMenuStatus } from '@/utils/request/api/apiList';
 import { stopLoading, startLoading } from '@/store/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { AxiosResponse, AxiosError } from 'axios';
-import { useNavigate } from 'react-router-dom';
-
+import { useParams } from 'react-router-dom'
 
 interface DataType {
     key: React.Key;
@@ -16,57 +13,25 @@ interface DataType {
     createTime: string;
     updateTime: string;
     name: string;
-    icon: string;
     isStart: boolean;
 }
 
-interface IconSelectorProps {
-    value?: string;
-    onChange?: (value: string) => void;
-}
-
 interface AddmenuInterFace {
+    mainId: any;
     displayName: string;
     name: string;
-    icon: string;
 }
 
 interface ErrorData {
     message: string;
 }
 
-// 自定义图标选择组件
-const IconSelector: React.FC<IconSelectorProps> = ({ value, onChange }) => {
-    const [selectedIcon, setSelectedIcon] = useState<string | null>(value || null);
-
-    const handleIconSelect = (iconName: string) => {
-        setSelectedIcon(iconName);
-        if (onChange) {
-            onChange(iconName);
-        }
-    };
-
-    const SelectedIconComponent = selectedIcon ? (Icons as any)[selectedIcon] : null;
-
-    return (
-        <div>
-            <ExpAntDesignIcon onIconSelect={handleIconSelect} />
-            {SelectedIconComponent && (
-                <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center' }}>
-                    <SelectedIconComponent style={{ fontSize: '24px' }} />
-                </div>
-            )}
-        </div>
-    );
-};
-
-export default function MenuSetting() {
+export default function ChildrenMenu() {
     const [form] = Form.useForm();
     const [messageApi, contextHolder] = message.useMessage();
     const dispatch = useDispatch();
     const [menuListData, setMenuListData] = useState<DataType[]>([]);
-    const navigate = useNavigate();
-
+    const { id } = useParams<{ id: string }>();
 
     const success = (msg: string) => {
         messageApi.open({
@@ -84,23 +49,23 @@ export default function MenuSetting() {
 
     const onFinishMenu = async (values: any) => {
         dispatch(startLoading());
-        const formData = { ...values, icon: values.menuIcon };
+        const formData = { ...values};
         console.log('菜单设置表单值:', formData);
         const data: AddmenuInterFace = {
+            mainId: id,
             displayName: values.menuName,
-            name: '/' + values.menuPath,
-            icon: values.menuIcon,
+            name: '/' + values.menuPath
         };
 
         try {
-            const response: AxiosResponse = await addMenu(data);
+            const response: AxiosResponse = await addchildrenMenu(data);
             const responseData = response.data;
             if (responseData.code !== '200') {
                 errorWindows(responseData.message);
             } else {
                 success('添加成功');
                 // 重新获取菜单列表
-                getMenuList();
+                getMenuList(id);
             }
         } catch (error) {
             if (error instanceof AxiosError) {
@@ -119,11 +84,11 @@ export default function MenuSetting() {
         dispatch(startLoading());
         try {
             console.log(key)
-            const response: AxiosResponse = await updateMenuStatus(key);
+            const response: AxiosResponse = await updateChaildrenMenuStatus(key);
             const responseData = response.data;
             if (responseData.code === '200') {
                 success('状态更新成功');
-                getMenuList();
+                getMenuList(id);
             } else {
                 errorWindows(responseData.message);
             }
@@ -167,16 +132,6 @@ export default function MenuSetting() {
             width: 100,
         },
         {
-            title: 'Icon图标',
-            dataIndex: 'icon',
-            key: 'icon',
-            width: 100,
-            render: (icon: string) => {
-                const IconComponent = (Icons as any)[icon];
-                return IconComponent ? <IconComponent style={{ fontSize: '24px' }} /> : null;
-            },
-        },
-        {
             title: '启用',
             dataIndex: 'isStart',
             key: 'isStart',
@@ -195,7 +150,7 @@ export default function MenuSetting() {
             width: 100,
             render: (_ , record) => (
                 <div key={record.key}>
-                    <a>修改</a> | <a onClick={() => handleManageClick(record.key)}>管理</a> | <a onClick={() => confirmDelete(record.key)}>删除</a>
+                    <a>修改</a> | <a onClick={() => confirmDelete(record.key)}>删除</a>
                 </div>
             ),
         },
@@ -215,11 +170,11 @@ export default function MenuSetting() {
     const delMenu = async (key: React.Key) => {
         dispatch(startLoading());
         try {
-            const response: AxiosResponse = await delMenuItem(key);
+            const response: AxiosResponse = await delChaildrenMenuStatus(key);
             const responseData = response.data;
             if (responseData.code === '200') {
                 success('删除成功');
-                getMenuList();
+                getMenuList(id);
             } else {
                 errorWindows(responseData.message);
             }
@@ -236,16 +191,16 @@ export default function MenuSetting() {
     };
 
     // 获取菜单列表
-    const getMenuList = async () => {
+    const getMenuList = async (id: any) => {
         dispatch(startLoading());
         try {
-            const response: AxiosResponse = await requestMenuList();
+            const response: AxiosResponse = await requestChildrenMenuList(id);
             const responseData = response.data;
             if (responseData.code !== '200') {
                 console.log(responseData.code);
                 errorWindows(responseData.message);
             } else if (responseData.data.length === 0) {
-                // errorWindows("服务器获取失败");
+``                // errorWindows("服务器获取失败");
             } else {
                 const formattedData: DataType[] = responseData.data.map((item: any) => ({
                     key: item.id,  // 使用唯一标识符作为 key
@@ -253,7 +208,6 @@ export default function MenuSetting() {
                     createTime: item.createTime,
                     updateTime: item.updateTime,
                     name: item.name,
-                    icon: item.icon,
                     isStart: item.isStart,
                 }));
                 setMenuListData(formattedData);
@@ -271,14 +225,9 @@ export default function MenuSetting() {
         }
     };
 
-    // 跳转子菜单
-        // 跳转子菜单
-    const handleManageClick = (key: React.Key) => {
-        navigate(`/chindren-menu/${key}`);
-    }
 
     useEffect(() => {
-        getMenuList();
+        getMenuList(id);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -300,15 +249,6 @@ export default function MenuSetting() {
                 >
                     <Input />
                 </Form.Item>
-                <Form.Item
-                    label="菜单图标"
-                    name="menuIcon"
-                    rules={[{ required: true, message: '请选择一个菜单图标!' }]}
-                    valuePropName="value"
-                    getValueFromEvent={(value) => value}
-                >
-                    <IconSelector />
-                </Form.Item>
                 <Form.Item>
                     <Button type="primary" htmlType="submit">
                         添加
@@ -319,3 +259,4 @@ export default function MenuSetting() {
         </div>
     );
 }
+

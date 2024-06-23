@@ -73,6 +73,42 @@ export const delMenuItem = async (id: React.Key) => {
     })
 }
 
+// 获取子菜单列表
+export const requestChildrenMenuList = async (id: React.Key) => {
+    return await request({
+        url: `menu/getChildrenMenuList/${id}`,
+        method: 'post',
+        data: {}
+    })
+}
+
+// 更新子菜单开关
+export const updateChaildrenMenuStatus = async (id: React.Key) => {
+    return await request({
+        url: `menu/update/childrenMenuCheck/${id}`,
+        method: 'post',
+        data: {}
+    })
+}
+
+// 删除子菜单
+export const delChaildrenMenuStatus = async (id: React.Key) => {
+    return await request({
+        url: `menu/delChildrenMenu/${id}`,
+        method: 'post',
+        data: {}
+    })
+}
+
+// 添加子菜单
+export const addchildrenMenu = async (data: any) => {
+    return await request({
+        url: `menu/children/addMenu`,
+        method: 'post',
+        data: data
+    })
+}
+
 // 通用的 GET 请求函数
 export const httpGetRequest = async (url: string, params?: any): Promise<AxiosResponse> => {
     try {

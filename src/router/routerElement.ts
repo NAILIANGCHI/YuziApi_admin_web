@@ -7,4 +7,5 @@ export const BaseSetting = lazy(() => import("@/compontes/BaseSetting/BaseSettin
 export const Not404 = lazy(() => import("@/compontes/NotFound"))
 export const Homepage = lazy(() => import("@/views/Homepage"))
 export const Login = lazy(() => import("@/views/Login"))
+export const ChildrenMenu = lazy(() => import("@/views/ChildrenMenu"))
 
