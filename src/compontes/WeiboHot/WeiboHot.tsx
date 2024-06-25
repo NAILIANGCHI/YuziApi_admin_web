@@ -57,7 +57,7 @@ const WeiboHot: React.FC = () => {
         errorWindows("发生意外错误");
       }
     } finally {
-        dispatch(stopLoading)
+        dispatch(stopLoading())
     }
   }
 
@@ -71,7 +71,7 @@ const WeiboHot: React.FC = () => {
       {contextHolder}
       {/* <Title level={2} style={{ textAlign: 'center' }}>微博热搜</Title> */}
       <Divider />
-      <Collapse defaultActiveKey={['1']} ghost>
+      <Collapse defaultActiveKey={['0']} ghost>
         {dataSource.map((item) => (
           <Panel header={`${item.rank}: ${item.title}`} key={item.rank} style={{paddingLeft: '20px'}}>
             <Text><strong>类型:</strong> {item.type}</Text><br />

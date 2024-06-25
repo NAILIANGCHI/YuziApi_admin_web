@@ -109,6 +109,15 @@ export const addchildrenMenu = async (data: any) => {
     })
 }
 
+// 获取路由菜单
+export const getMenuRouter = async () => {
+    return await request({
+        url: `menu/router`,
+        method: 'get',
+        data: {}
+    })
+}
+
 // 通用的 GET 请求函数
 export const httpGetRequest = async (url: string, params?: any): Promise<AxiosResponse> => {
     try {

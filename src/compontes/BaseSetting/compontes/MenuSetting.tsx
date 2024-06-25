@@ -52,9 +52,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({ value, onChange }) => {
         <div>
             <ExpAntDesignIcon onIconSelect={handleIconSelect} />
             {SelectedIconComponent && (
-                <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center' }}>
-                    <SelectedIconComponent style={{ fontSize: '24px' }} />
-                </div>
+                <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center' }} />
             )}
         </div>
     );

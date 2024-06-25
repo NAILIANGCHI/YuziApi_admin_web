@@ -1,94 +1,112 @@
 import React, { useState, useEffect } from 'react';
-import {
-  DesktopOutlined,
-  PieChartOutlined,
-  SettingOutlined,
-  TeamOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
-import { Layout, Menu, Breadcrumb } from 'antd';
+import { Layout, Menu, Breadcrumb, message } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import DropDownMenu from '@/compontes/DropDownMenu/DropDownMenu';
-import { stopLoading } from '@/store/loadingSlice';
+import { startLoading, stopLoading } from '@/store/loadingSlice';
 import { useDispatch } from 'react-redux';
-
+import { getMenuRouter } from '@/utils/request/api/apiList';
+import { AxiosResponse, AxiosError } from 'axios';
+import { getIconComponent } from '@/utils/request/function';
 const { Header, Content, Footer, Sider } = Layout;
 
 type MenuItem = {
   key: string;
-  icon?: React.ReactNode;
+  icon?: string;
   label: React.ReactNode;
   children?: MenuItem[];
 };
 
-const items: MenuItem[] = [
-  { key: '/home', label: '首页', icon: <PieChartOutlined /> },
-  { key: '/setting22', label: 'Option 2', icon: <DesktopOutlined /> },
-  {
-    key: '/sub1',
-    label: 'User',
-    icon: <UserOutlined />,
-    children: [
-      { key: '/setting1', label: 'Tom' },
-      { key: '/4', label: 'Bill' },
-      { key: '/5', label: 'Alex' },
-    ],
-  },
-  {
-    key: '/sub2',
-    label: 'Team',
-    icon: <TeamOutlined />,
-    children: [
-      { key: '/6', label: 'Team 1' },
-      { key: '/7', label: 'Team 2' },
-    ],
-  },
-  {
-    key: '/setting',
-    label: '设置',
-    icon: <SettingOutlined />,
-    children: [
-      { key: '/setting12', label: '用户管理' },
-      { key: '/system-settings', label: '系统设置' },
-      { key: '/58', label: '页面设置' },
-    ],
-  },
-];
-
-const findOpenKeys = (pathname: string, items: MenuItem[]): string[] => {
-  for (const item of items) {
-    if (item.children) {
-      for (const child of item.children) {
-        if (child.key === pathname) {
-          return [item.key];
-        }
-      }
-    }
-  }
-  return [];
-};
+interface ErrorData {
+  message: string;
+}
 
 const Home: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+  const [messageApi, contextHolder] = message.useMessage();
+  const [items, setItems] = useState<MenuItem[]>([]);
+
+  const errorWindows = (msg: string) => {
+    messageApi.open({
+      type: 'error',
+      content: msg,
+    });
+  };
+
+  // const getMenuList = async () => {
+  //   dispatch(startLoading());
+  //   try {
+  //     const response: AxiosResponse = await getMenuRouter();
+  //     const responseData = response.data;
+  //     if (responseData.code === '200') {
+  //       setItems(responseData.data);
+  //     } else {
+  //       errorWindows(responseData.message);
+  //     }
+  //   } catch (error) {
+  //     if (error instanceof AxiosError) {
+  //       const errorData: ErrorData = error.response?.data || { message: error.message };
+  //       errorWindows(errorData.message);
+  //     } else {
+  //       errorWindows("发生意外错误");
+  //     }
+  //   } finally {
+  //     dispatch(stopLoading());
+  //   }
+  // };
 
   const { pathname } = location;
 
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([pathname]);
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   useEffect(() => {
+
+    const getMenuList = async () => {
+      dispatch(startLoading());
+      try {
+        const response: AxiosResponse = await getMenuRouter();
+        const responseData = response.data;
+        if (responseData.code === '200') {
+          setItems(responseData.data);
+        } else {
+          errorWindows(responseData.message);
+        }
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          const errorData: ErrorData = error.response?.data || { message: error.message };
+          errorWindows(errorData.message);
+        } else {
+          errorWindows("发生意外错误");
+        }
+      } finally {
+        dispatch(stopLoading());
+      }
+    };
+    getMenuList();
+    // 渲染前设置
     setSelectedKeys([pathname]);
-    setOpenKeys(findOpenKeys(pathname, items));
-
-    const timer = setTimeout(() => {
-      dispatch(stopLoading());
-    }, 2000);
-
-    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, dispatch]);
+
+  useEffect(() => {
+    setOpenKeys(findOpenKeys(pathname, items));
+  }, [pathname, items]);
+
+  const findOpenKeys = (pathname: string, items: MenuItem[]): string[] => {
+    for (const item of items) {
+      if (item.children) {
+        for (const child of item.children) {
+          if (child.key === pathname) {
+            return [item.key];
+          }
+        }
+      }
+    }
+    return [];
+  };
 
   const changeMenu = ({ key, keyPath }: { key: React.Key; keyPath: React.Key[] }) => {
     navigate(key.toString());
@@ -112,6 +130,7 @@ const Home: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
+      {contextHolder}
       <Sider
         collapsible
         collapsed={collapsed}
@@ -140,14 +159,21 @@ const Home: React.FC = () => {
           onOpenChange={onOpenChange}
         >
           {items.map((item) =>
-            item.children ? (
-              <Menu.SubMenu key={item.key} icon={item.icon} title={item.label}>
+            item.children && item.children.length > 0 ? (
+              <Menu.SubMenu
+                key={item.key}
+                icon={item.icon ? getIconComponent(item.icon) : undefined}
+                title={item.label}
+              >
                 {item.children.map((child) => (
                   <Menu.Item key={child.key}>{child.label}</Menu.Item>
                 ))}
               </Menu.SubMenu>
             ) : (
-              <Menu.Item key={item.key} icon={item.icon}>
+              <Menu.Item
+                key={item.key}
+                icon={item.icon ? getIconComponent(item.icon) : undefined}
+              >
                 {item.label}
               </Menu.Item>
             )
@@ -179,8 +205,8 @@ const Home: React.FC = () => {
             minHeight: 360,
             background: theme.colorBody,
             borderRadius: theme.borderRadiusLG,
-            height: 'calc(0vh - 160px)', 
-            overflowY: 'auto'  
+            height: 'calc(100vh - 160px)',
+            overflowY: 'auto'
           }}
         >
           <Outlet />
