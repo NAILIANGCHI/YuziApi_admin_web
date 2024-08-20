@@ -1,5 +1,5 @@
 
-import { DownOutlined, SmileOutlined } from '@ant-design/icons';
+import { DownOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Dropdown, Space, message } from 'antd';
 import {SettingFilled} from '@ant-design/icons'
@@ -39,30 +39,30 @@ export default function DropDownMenu() {
         {
           key: '1',
           label: (
-            <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-              个人中心
+            <a target="_blank" rel="noopener noreferrer" href="https://github.com/NAILIANGCHI">
+              Github主页
             </a>
           ),
         },
-        {
-          key: '2',
-          label: (
-            <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
-              2nd menu item (disabled)
-            </a>
-          ),
-          icon: <SmileOutlined />,
-          disabled: true,
-        },
-        {
-          key: '3',
-          label: (
-            <a target="_blank" rel="noopener noreferrer" href="https://www.luohanacademy.com">
-              3rd menu item (disabled)
-            </a>
-          ),
-          disabled: true,
-        },
+        // {
+        //   key: '2',
+        //   label: (
+        //     <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
+        //       2nd menu item (disabled)
+        //     </a>
+        //   ),
+        //   icon: <SmileOutlined />,
+        //   disabled: true,
+        // },
+        // {
+        //   key: '3',
+        //   label: (
+        //     <a target="_blank" rel="noopener noreferrer" href="https://www.luohanacademy.com">
+        //       3rd menu item (disabled)
+        //     </a>
+        //   ),
+        //   disabled: true,
+        // },
         {
           key: '4',
           danger: true,
