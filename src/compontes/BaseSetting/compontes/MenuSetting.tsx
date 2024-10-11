@@ -272,7 +272,7 @@ export default function MenuSetting() {
     // 跳转子菜单
         // 跳转子菜单
     const handleManageClick = (key: React.Key) => {
-        navigate(`/chindren-menu/${key}`);
+        navigate(`/children-menu/${key}`);
     }
 
     useEffect(() => {

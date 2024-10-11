@@ -1,7 +1,9 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { getToken } from '../function';
 
-const baseUrl = "http://127.0.0.1:9081/api";
+// const baseUrl = "http://127.0.0.1:9081/api";
+const baseUrl = "http://112.124.65.228:9081/api";
+
 
 // 定义 RequestOptions 接口
 interface RequestOptions extends AxiosRequestConfig {
