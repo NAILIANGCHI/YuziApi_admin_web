@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import Home from "@/views/Home";
-import { BaseSetting, Homepage, Not404, Login, ChildrenMenu } from "./routerElement";
+import {BaseSetting, Homepage, Not404, Login, ChildrenMenu, Logistics} from "./routerElement";
 import { ReactNode } from "react";
 import PrivateRoute from '@/router/PrivateRoute';
 
@@ -42,6 +42,13 @@ const routers: Route[] = [
         name: 'baseSetting',
         display_name: '系统设置',
         element: <PrivateRoute auth={true}><BaseSetting /></PrivateRoute>,
+        auth: true
+      },
+      {
+        path: "/logistics",
+        name: 'logistics',
+        display_name: '头程发货记录',
+        element: <PrivateRoute auth={true}><Logistics /></PrivateRoute>,
         auth: true
       },
     ]
