@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Layout, Menu, message } from 'antd';
 import { Outlet, useNavigate } from 'react-router-dom';
 import DropDownMenu from '@/compontes/DropDownMenu/DropDownMenu';
-import Breadcrumbs from '@/compontes/Breadcrumb/Breadcrumb'; // 确保路径正确
+import Breadcrumbs from '@/compontes/Breadcrumb/Breadcrumb.tsx'; // 确保路径正确
 import { startLoading, stopLoading } from '@/store/loadingSlice';
 import { useDispatch } from 'react-redux';
 import { getMenuRouter } from '@/utils/request/api/apiList';
