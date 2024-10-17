@@ -6,6 +6,7 @@ import { startLoading, stopLoading } from '@/store/loadingSlice';
 import { AxiosResponse, AxiosError } from 'axios';
 import Draggable from 'react-draggable'; // 引入 Draggable
 
+
 interface WpsAllDataResponse {
     serialNumber: number;
     sellerShipmentDate: string;
@@ -21,6 +22,7 @@ interface WpsAllDataResponse {
     customerName: string;
     logisticsMode: string;
     warehousingNumber: string;
+    principal: string
     productName: string;
     category: string;
     value: string;
@@ -39,6 +41,7 @@ interface WpsAllDataResponse {
     remarks: string;
     customerInitialBillingTotal: string;
     customerPaymentDate: string;
+    payBody: string;
 }
 
 const Logistics: React.FC = () => {
@@ -47,10 +50,12 @@ const Logistics: React.FC = () => {
     const [dataSource, setDataSource] = useState<WpsAllDataResponse[]>([]);
     const [selectedItem, setSelectedItem] = useState<WpsAllDataResponse | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize] = useState(10);
+    const [totalRecords, setTotalRecords] = useState(0); // 总记录数，用于分页
     const [isModalVisible, setIsModalVisible] = useState(false); // 用于控制 Modal 可见性
     const [disabled, setDisabled] = useState(true); // 控制拖拽开关
     const [bounds, setBounds] = useState({ left: 0, top: 0, bottom: 0, right: 0 });
+    const [pageSize, setPageSize] = useState(10); // 默认每页显示 10 条记录
+
 
     const errorWindows = (message: string) => {
         messageApi.open({
@@ -63,11 +68,11 @@ const Logistics: React.FC = () => {
         message: string;
     }
 
-    const fetchData = async () => {
+    const fetchData = async (page: number, pageSize: number) => {
         dispatch(startLoading());
 
         try {
-            const response: AxiosResponse = await getWpsAllData();
+            const response: AxiosResponse = await getWpsAllData({ page, pageSize }); // 传递分页参数
             const responseData = response.data;
 
             if (responseData.code !== '200') {
@@ -75,7 +80,10 @@ const Logistics: React.FC = () => {
             } else if (responseData.data.length === 0) {
                 errorWindows("没有数据");
             } else {
-                setDataSource(responseData.data);
+                setDataSource(responseData.data.pageData);
+                setTotalRecords(responseData.data.totalRecords); // 更新总记录数
+                console.log(responseData.data.totalRecords)
+
             }
         } catch (error) {
             if (error instanceof AxiosError) {
@@ -90,8 +98,8 @@ const Logistics: React.FC = () => {
     };
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        fetchData(currentPage, pageSize); // 初始获取第一页数据
+    }, [currentPage, pageSize]);
 
     const handleOpenDetail = (item: WpsAllDataResponse) => {
         setSelectedItem(item);
@@ -106,6 +114,7 @@ const Logistics: React.FC = () => {
     const formatNumber = (num: string) => {
         return Number(num).toFixed(2);
     };
+
 
     const columns = [
         {
@@ -124,6 +133,11 @@ const Logistics: React.FC = () => {
             key: 'warehousingNumber',
         },
         {
+            title: '订单状态',
+            dataIndex: 'orderStatus',
+            key: 'orderStatus'
+        },
+        {
             title: '箱数',
             dataIndex: 'boxCount',
             key: 'boxCount',
@@ -137,6 +151,11 @@ const Logistics: React.FC = () => {
             title: '承运商物流单号',
             dataIndex: 'carrierTrackingNumber',
             key: 'carrierTrackingNumber',
+        },
+        {
+            title: '负责人',
+            dataIndex: 'principal',
+            key: 'principal'
         },
         {
             title: '发货时间',
@@ -181,8 +200,20 @@ const Logistics: React.FC = () => {
                 pagination={{
                     current: currentPage,
                     pageSize,
-                    onChange: (page) => setCurrentPage(page),
-                    total: dataSource.length,
+                    total: totalRecords,
+                    showSizeChanger: true, // 显示选择每页条数的下拉框
+                    pageSizeOptions: ['10', '20', '50', '100'], // 每页显示条数的选项
+                    onChange: (page, pageSize) => {
+                        setCurrentPage(page); // 更新当前页
+                        fetchData(page, pageSize); // 根据新页码和每页大小重新请求数据
+                    },
+                    onShowSizeChange: (_, size) => {
+                        setPageSize(size);
+                        setCurrentPage(1); // 重置到第一页
+                        fetchData(1, size);
+                    },
+
+
                 }}
             />
             {selectedItem && (
@@ -196,7 +227,7 @@ const Logistics: React.FC = () => {
                             详细信息
                         </div>
                     }
-                    visible={isModalVisible}
+                    open={isModalVisible}
                     onCancel={handleCloseDetail}
                     footer={null}
                     modalRender={(modal) => (
@@ -208,9 +239,11 @@ const Logistics: React.FC = () => {
                             <div>{modal}</div>
                         </Draggable>
                     )}
-                    bodyStyle={{
-                        maxHeight: '650px', // 限制弹窗内容区域的最大高度
-                        overflowY: 'auto', // 启用滚动条
+                    styles={{
+                        body: {
+                            maxHeight: '600px', // 限制弹窗内容区域的最大高度
+                            overflowY: 'auto',  // 启用滚动条
+                        }
                     }}
                 >
                     <Descriptions bordered column={1}>
@@ -227,6 +260,7 @@ const Logistics: React.FC = () => {
                         <Descriptions.Item label="客户名称">{selectedItem.customerName}</Descriptions.Item>
                         <Descriptions.Item label="物流模式">{selectedItem.logisticsMode}</Descriptions.Item>
                         <Descriptions.Item label="入库单号">{selectedItem.warehousingNumber}</Descriptions.Item>
+                        <Descriptions.Item label="负责人">{selectedItem.principal}</Descriptions.Item>
                         <Descriptions.Item label="商品名称">{selectedItem.productName}</Descriptions.Item>
                         <Descriptions.Item label="品类">{selectedItem.category}</Descriptions.Item>
                         <Descriptions.Item label="货值">{formatNumber(selectedItem.value)}</Descriptions.Item>
@@ -245,6 +279,7 @@ const Logistics: React.FC = () => {
                         <Descriptions.Item label="备注说明">{selectedItem.remarks}</Descriptions.Item>
                         <Descriptions.Item label="客户头程账单合计">{formatNumber(selectedItem.customerInitialBillingTotal)}</Descriptions.Item>
                         <Descriptions.Item label="客户付款日期">{selectedItem.customerPaymentDate}</Descriptions.Item>
+                        <Descriptions.Item label="付款主体">{selectedItem.payBody}</Descriptions.Item>
                     </Descriptions>
                 </Modal>
             )}
