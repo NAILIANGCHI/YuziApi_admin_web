@@ -9,5 +9,6 @@ export const Homepage = lazy(() => import("@/views/Homepage"))
 export const Login = lazy(() => import("@/views/Login"))
 export const ChildrenMenu = lazy(() => import("@/views/ChildrenMenu"))
 export const Logistics = lazy(() => import("@/views/Logistics.tsx"))
+export const ModelPop = lazy(() => import("@/compontes/ModelPop/ModelPop.tsx"))
 
 

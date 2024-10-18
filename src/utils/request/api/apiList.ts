@@ -133,7 +133,7 @@ export const httpGetRequest = async (url: string, params?: any): Promise<AxiosRe
 };
 
 // 获取全部的物流记录
-export const getWpsAllData = async (p: { pageSize: number; page: number }) => {
+export const getWpsAllData = async (p: { pageSize: number; page: number}) => {
     return await request({
         url: `wps/all`,
         method: 'get',
@@ -143,3 +143,15 @@ export const getWpsAllData = async (p: { pageSize: number; page: number }) => {
         }
     });
 }
+
+// 导出账单
+export const exportCheck = async (data: any) => {
+    return await request({
+        url: 'wps/check',
+        method: 'post',
+        data: {
+            text: data
+        }
+    });
+}
+//

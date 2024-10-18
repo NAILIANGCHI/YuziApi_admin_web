@@ -1,6 +1,5 @@
 import React from "react";
 import * as Icons from '@ant-design/icons'
-
 //获取token
 export function getToken() {
     return localStorage.getItem('token')

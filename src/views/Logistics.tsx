@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { message, Table, Divider, Button, Modal, Descriptions } from 'antd';
-import { getWpsAllData } from '@/utils/request/api/apiList'; // 假设这是获取数据的 API
+import { getWpsAllData, exportCheck } from '@/utils/request/api/apiList';
 import { useDispatch } from 'react-redux';
 import { startLoading, stopLoading } from '@/store/loadingSlice';
 import { AxiosResponse, AxiosError } from 'axios';
-import Draggable from 'react-draggable'; // 引入 Draggable
-
+import Draggable from 'react-draggable';
+import ModelPop from "@/compontes/ModelPop/ModelPop.tsx";
 
 interface WpsAllDataResponse {
     serialNumber: number;
@@ -22,7 +22,7 @@ interface WpsAllDataResponse {
     customerName: string;
     logisticsMode: string;
     warehousingNumber: string;
-    principal: string
+    principal: string;
     productName: string;
     category: string;
     value: string;
@@ -50,17 +50,40 @@ const Logistics: React.FC = () => {
     const [dataSource, setDataSource] = useState<WpsAllDataResponse[]>([]);
     const [selectedItem, setSelectedItem] = useState<WpsAllDataResponse | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalRecords, setTotalRecords] = useState(0); // 总记录数，用于分页
-    const [isModalVisible, setIsModalVisible] = useState(false); // 用于控制 Modal 可见性
-    const [disabled, setDisabled] = useState(true); // 控制拖拽开关
+    const [totalRecords, setTotalRecords] = useState(0);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [disabled, setDisabled] = useState(true);
     const [bounds, setBounds] = useState({ left: 0, top: 0, bottom: 0, right: 0 });
-    const [pageSize, setPageSize] = useState(10); // 默认每页显示 10 条记录
+    const [pageSize, setPageSize] = useState(10);
 
+    const postRobot = async (item: WpsAllDataResponse) => {
+        dispatch(startLoading());
+        try {
+            const jsonString = JSON.stringify(item);
+            console.log(jsonString);
+            const response: AxiosResponse = await exportCheck(item);
+            const responseData = response.data;
+            if (responseData.code !== '200') {
+                errorWindows(responseData.message);
+            } else if (responseData.data.length === 0) {
+                errorWindows("推送失败");
+            }
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                const errorData: ErrorData = error.response?.data || { message: error.message };
+                errorWindows(errorData.message);
+            } else {
+                errorWindows("发生意外错误");
+            }
+        } finally {
+            dispatch(stopLoading());
+        }
+    }
 
-    const errorWindows = (message: string) => {
+    const errorWindows = (msg: string) => {
         messageApi.open({
             type: 'error',
-            content: message,
+            content: msg,
         });
     };
 
@@ -70,9 +93,8 @@ const Logistics: React.FC = () => {
 
     const fetchData = async (page: number, pageSize: number) => {
         dispatch(startLoading());
-
         try {
-            const response: AxiosResponse = await getWpsAllData({ page, pageSize }); // 传递分页参数
+            const response: AxiosResponse = await getWpsAllData({ page, pageSize });
             const responseData = response.data;
 
             if (responseData.code !== '200') {
@@ -81,9 +103,7 @@ const Logistics: React.FC = () => {
                 errorWindows("没有数据");
             } else {
                 setDataSource(responseData.data.pageData);
-                setTotalRecords(responseData.data.totalRecords); // 更新总记录数
-                console.log(responseData.data.totalRecords)
-
+                setTotalRecords(responseData.data.totalRecords);
             }
         } catch (error) {
             if (error instanceof AxiosError) {
@@ -98,23 +118,20 @@ const Logistics: React.FC = () => {
     };
 
     useEffect(() => {
-        fetchData(currentPage, pageSize); // 初始获取第一页数据
+        fetchData(currentPage, pageSize);
     }, [currentPage, pageSize]);
 
     const handleOpenDetail = (item: WpsAllDataResponse) => {
         setSelectedItem(item);
-        setIsModalVisible(true); // 打开 Modal
+        setIsModalVisible(true);
     };
 
     const handleCloseDetail = () => {
         setSelectedItem(null);
-        setIsModalVisible(false); // 关闭 Modal
+        setIsModalVisible(false);
     };
 
-    const formatNumber = (num: string) => {
-        return Number(num).toFixed(2);
-    };
-
+    const formatNumber = (num: string) => Number(num).toFixed(2);
 
     const columns = [
         {
@@ -135,7 +152,7 @@ const Logistics: React.FC = () => {
         {
             title: '订单状态',
             dataIndex: 'orderStatus',
-            key: 'orderStatus'
+            key: 'orderStatus',
         },
         {
             title: '箱数',
@@ -155,7 +172,7 @@ const Logistics: React.FC = () => {
         {
             title: '负责人',
             dataIndex: 'principal',
-            key: 'principal'
+            key: 'principal',
         },
         {
             title: '发货时间',
@@ -172,13 +189,19 @@ const Logistics: React.FC = () => {
             title: '操作',
             key: 'action',
             render: (_text: string, record: WpsAllDataResponse) => (
-                <Button type="link" onClick={() => handleOpenDetail(record)}>查看详情</Button>
+                <div>
+                    <Button type="link" onClick={() => handleOpenDetail(record)}>查看详情</Button>
+                    <ModelPop
+                        title="提示"
+                        txt="是否确认要导出账单？"
+                        func={() => postRobot(record)} // 传递函数引用
+                    />
+                </div>
             ),
         },
     ];
 
     const onStart = (event: any, uiData: any) => {
-        // eslint-disable-next-line no-unsafe-optional-chaining
         const { clientWidth, clientHeight } = window?.document?.documentElement;
         const targetRect = (event?.target as HTMLElement).getBoundingClientRect();
         setBounds({
@@ -201,26 +224,23 @@ const Logistics: React.FC = () => {
                     current: currentPage,
                     pageSize,
                     total: totalRecords,
-                    showSizeChanger: true, // 显示选择每页条数的下拉框
-                    pageSizeOptions: ['10', '20', '50', '100'], // 每页显示条数的选项
+                    showSizeChanger: true,
+                    pageSizeOptions: ['10', '20', '50', '100'],
                     onChange: (page, pageSize) => {
-                        setCurrentPage(page); // 更新当前页
-                        fetchData(page, pageSize); // 根据新页码和每页大小重新请求数据
+                        setCurrentPage(page);
+                        setPageSize(pageSize);
                     },
                     onShowSizeChange: (_, size) => {
                         setPageSize(size);
-                        setCurrentPage(1); // 重置到第一页
-                        fetchData(1, size);
+                        setCurrentPage(1);
                     },
-
-
                 }}
             />
             {selectedItem && (
                 <Modal
                     title={
                         <div
-                            style={{ width: '100%', cursor: 'move' }}
+                            style={{ width: '600px', cursor: 'move' }}
                             onMouseOver={() => setDisabled(false)}
                             onMouseOut={() => setDisabled(true)}
                         >
@@ -239,12 +259,6 @@ const Logistics: React.FC = () => {
                             <div>{modal}</div>
                         </Draggable>
                     )}
-                    styles={{
-                        body: {
-                            maxHeight: '600px', // 限制弹窗内容区域的最大高度
-                            overflowY: 'auto',  // 启用滚动条
-                        }
-                    }}
                 >
                     <Descriptions bordered column={1}>
                         <Descriptions.Item label="序号">{selectedItem.serialNumber}</Descriptions.Item>
@@ -286,6 +300,5 @@ const Logistics: React.FC = () => {
         </div>
     );
 };
-
 
 export default Logistics;
