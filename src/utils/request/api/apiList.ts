@@ -150,7 +150,18 @@ export const exportCheck = async (data: any) => {
         url: 'wps/check',
         method: 'post',
         data: {
-            text: data
+            customerCode: data.customerCode,
+            warehousingNumber: data.warehousingNumber,
+            skuTotalCount: data.skuTotalCount,
+            originalWeightAfterWrapping: data.originalWeightAfterWrapping,
+            customerUnitPrice: data.customerUnitPrice,
+            customerFreight: data.customerFreight,
+            customerShelvingFee: data.customerShelvingFee,
+            customerMiscellaneousFees: data.customerMiscellaneousFees,
+            insuranceFee: data.insuranceFee,
+            goodsCostGet: data.goodsCostGet,
+            remarks: data.remarks,
+            customerInitialBillingTotal: data.customerInitialBillingTotal
         }
     });
 }

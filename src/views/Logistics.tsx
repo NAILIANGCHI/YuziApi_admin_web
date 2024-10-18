@@ -37,6 +37,7 @@ interface WpsAllDataResponse {
     customerFreight: string;
     customerShelvingFee: string;
     customerMiscellaneousFees: string;
+    goodCostGet: string;
     insuranceFee: string;
     remarks: string;
     customerInitialBillingTotal: string;
@@ -59,14 +60,14 @@ const Logistics: React.FC = () => {
     const postRobot = async (item: WpsAllDataResponse) => {
         dispatch(startLoading());
         try {
-            const jsonString = JSON.stringify(item);
-            console.log(jsonString);
+            console.log(item);
             const response: AxiosResponse = await exportCheck(item);
             const responseData = response.data;
+            console.log(responseData)
             if (responseData.code !== '200') {
                 errorWindows(responseData.message);
-            } else if (responseData.data.length === 0) {
-                errorWindows("推送失败");
+            } else if (responseData.message == "success") {
+                successWindows("推送账单机器人成功");
             }
         } catch (error) {
             if (error instanceof AxiosError) {
@@ -87,6 +88,13 @@ const Logistics: React.FC = () => {
         });
     };
 
+    const successWindows = (msg: string) => {
+        messageApi.open({
+            type: 'success',
+            content: msg,
+        });
+    };
+
     interface ErrorData {
         message: string;
     }
@@ -96,10 +104,9 @@ const Logistics: React.FC = () => {
         try {
             const response: AxiosResponse = await getWpsAllData({ page, pageSize });
             const responseData = response.data;
-
             if (responseData.code !== '200') {
                 errorWindows(responseData.message);
-            } else if (responseData.data.length === 0) {
+            } else if (responseData.length === 0) {
                 errorWindows("没有数据");
             } else {
                 setDataSource(responseData.data.pageData);
@@ -240,7 +247,7 @@ const Logistics: React.FC = () => {
                 <Modal
                     title={
                         <div
-                            style={{ width: '600px', cursor: 'move' }}
+                            style={{ width: '100%', cursor: 'move' }}
                             onMouseOver={() => setDisabled(false)}
                             onMouseOut={() => setDisabled(true)}
                         >
@@ -259,6 +266,7 @@ const Logistics: React.FC = () => {
                             <div>{modal}</div>
                         </Draggable>
                     )}
+                    bodyStyle={{ maxHeight: '80vh', overflowY: 'auto' }}
                 >
                     <Descriptions bordered column={1}>
                         <Descriptions.Item label="序号">{selectedItem.serialNumber}</Descriptions.Item>
@@ -289,6 +297,7 @@ const Logistics: React.FC = () => {
                         <Descriptions.Item label="客户运费">{formatNumber(selectedItem.customerFreight)}</Descriptions.Item>
                         <Descriptions.Item label="客户上架费">{formatNumber(selectedItem.customerShelvingFee)}</Descriptions.Item>
                         <Descriptions.Item label="客户杂费">{formatNumber(selectedItem.customerMiscellaneousFees)}</Descriptions.Item>
+                        <Descriptions.Item label="客户提货费">{formatNumber(selectedItem.customerMiscellaneousFees)}</Descriptions.Item>
                         <Descriptions.Item label="保险费">{formatNumber(selectedItem.insuranceFee)}</Descriptions.Item>
                         <Descriptions.Item label="备注说明">{selectedItem.remarks}</Descriptions.Item>
                         <Descriptions.Item label="客户头程账单合计">{formatNumber(selectedItem.customerInitialBillingTotal)}</Descriptions.Item>
