@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import Home from "@/views/Home";
-import {BaseSetting, Homepage, Not404, Login, ChildrenMenu, Logistics} from "./routerElement";
+import {BaseSetting, Homepage, Not404, Login, ChildrenMenu, Logistics, Quotation} from "./routerElement";
 import { ReactNode } from "react";
 import PrivateRoute from '@/router/PrivateRoute';
 
@@ -17,38 +17,45 @@ const routers: Route[] = [
   {
     path: '/',
     display_name: '首页',
-    element: <Navigate to="/home" />
+    element: <Navigate to="/home" /> // 修改重定向路径
   },
   {
-    path: '/',
-    display_name: '首页',
-    element: <PrivateRoute auth={true}><Home/></PrivateRoute>,
+    path: '/', // 添加 admin 前缀
+    display_name: 'Admin 首页',
+    element: <PrivateRoute auth={true}><Home /></PrivateRoute>,
     children: [
       {
-        path: "/home",
+        path: "/home", // 仅使用相对路径
         name: 'home',
         display_name: '首页',
-        element: <PrivateRoute auth={true}><Homepage /></PrivateRoute>, 
+        element: <PrivateRoute auth={true}><Homepage /></PrivateRoute>,
         auth: true
       },
       {
-        path: "/children-menu/:id",
+        path: "/children-menu/:id", // 仅使用相对路径
         name: 'childrenMenu',
         display_name: '子菜单',
         element: <PrivateRoute auth={true}><ChildrenMenu /></PrivateRoute>
       },
       {
-        path: "/system-settings",
+        path: "/system-settings", // 仅使用相对路径
         name: 'baseSetting',
         display_name: '系统设置',
         element: <PrivateRoute auth={true}><BaseSetting /></PrivateRoute>,
         auth: true
       },
       {
-        path: "/logistics",
+        path: "/logistics", // 仅使用相对路径
         name: 'logistics',
         display_name: '头程发货记录',
         element: <PrivateRoute auth={true}><Logistics /></PrivateRoute>,
+        auth: true
+      },
+      {
+        path: "/quotation", // 仅使用相对路径
+        name: 'quotation',
+        display_name: '报价单制作',
+        element: <PrivateRoute auth={true}><Quotation /></PrivateRoute>,
         auth: true
       },
     ]
@@ -62,7 +69,7 @@ const routers: Route[] = [
   {
     path: "*",
     display_name: '未知页面',
-    element: <PrivateRoute auth={true}> <Not404 /> </PrivateRoute>
+    element: <PrivateRoute auth={true}><Not404 /></PrivateRoute>
   }
 ];
 

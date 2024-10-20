@@ -1,0 +1,11 @@
+.ant-form-item {
+    margin-bottom: 10px; /* Spacing between form items */
+}
+
+.ant-input-number {
+    width: 50%; /* Full width for input numbers */
+}
+
+.ant-form-item-label > label {
+    font-weight: bold; /* Make labels bold */
+}

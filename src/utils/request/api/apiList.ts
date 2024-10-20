@@ -159,9 +159,10 @@ export const exportCheck = async (data: any) => {
             customerShelvingFee: data.customerShelvingFee,
             customerMiscellaneousFees: data.customerMiscellaneousFees,
             insuranceFee: data.insuranceFee,
-            goodsCostGet: data.goodsCostGet,
+            goodCostGet: data.goodCostGet,
             remarks: data.remarks,
-            customerInitialBillingTotal: data.customerInitialBillingTotal
+            customerInitialBillingTotal: data.customerInitialBillingTotal,
+            principal: data.principal
         }
     });
 }

@@ -209,6 +209,7 @@ const Logistics: React.FC = () => {
     ];
 
     const onStart = (event: any, uiData: any) => {
+        // eslint-disable-next-line no-unsafe-optional-chaining
         const { clientWidth, clientHeight } = window?.document?.documentElement;
         const targetRect = (event?.target as HTMLElement).getBoundingClientRect();
         setBounds({
@@ -218,7 +219,6 @@ const Logistics: React.FC = () => {
             bottom: clientHeight - (targetRect.bottom - uiData.y),
         });
     };
-
     return (
         <div>
             {contextHolder}
@@ -266,7 +266,8 @@ const Logistics: React.FC = () => {
                             <div>{modal}</div>
                         </Draggable>
                     )}
-                    bodyStyle={{ maxHeight: '80vh', overflowY: 'auto' }}
+                    // bodyStyle={{ maxHeight: '80vh', overflowY: 'auto' }}
+                    styles={{ body: { maxHeight: '80vh', overflowY: 'auto' } }}
                 >
                     <Descriptions bordered column={1}>
                         <Descriptions.Item label="序号">{selectedItem.serialNumber}</Descriptions.Item>
@@ -297,7 +298,7 @@ const Logistics: React.FC = () => {
                         <Descriptions.Item label="客户运费">{formatNumber(selectedItem.customerFreight)}</Descriptions.Item>
                         <Descriptions.Item label="客户上架费">{formatNumber(selectedItem.customerShelvingFee)}</Descriptions.Item>
                         <Descriptions.Item label="客户杂费">{formatNumber(selectedItem.customerMiscellaneousFees)}</Descriptions.Item>
-                        <Descriptions.Item label="客户提货费">{formatNumber(selectedItem.customerMiscellaneousFees)}</Descriptions.Item>
+                        <Descriptions.Item label="客户提货费">{formatNumber(selectedItem.goodCostGet)}</Descriptions.Item>
                         <Descriptions.Item label="保险费">{formatNumber(selectedItem.insuranceFee)}</Descriptions.Item>
                         <Descriptions.Item label="备注说明">{selectedItem.remarks}</Descriptions.Item>
                         <Descriptions.Item label="客户头程账单合计">{formatNumber(selectedItem.customerInitialBillingTotal)}</Descriptions.Item>

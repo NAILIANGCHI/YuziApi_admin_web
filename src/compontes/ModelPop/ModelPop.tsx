@@ -12,6 +12,8 @@ const ModelPop: React.FC<ModelPopProps> = ({ title, txt, func }) => {
         Modal.confirm({
             title: title,
             content: txt,
+            cancelText: "取消",
+            okText: "确定",
             onOk: async () => {
                 try {
                     await func(); // 调用传入的异步函数
