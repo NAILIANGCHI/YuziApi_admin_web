@@ -11,6 +11,7 @@ interface DynamicRow {
     packingFee: number;
     palletFee: number;
     crateFee: number;
+    totalCost: number;
 }
 
 interface FormData {
@@ -47,7 +48,7 @@ const FreightCalculator: React.FC = () => {
         pickupFee: 0,
         shelvingUnitPrice: 0,
         shelvingFee: 0,
-        dynamicRows: [{ index: 0, transitTime: '', freightUnitPrice: 0, packingFee: 0, palletFee: 0, crateFee: 0 }],
+        dynamicRows: [{ index: 0, transitTime: '', freightUnitPrice: 0, packingFee: 0, palletFee: 0, crateFee: 0, totalCost: 0 }],
     });
 
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({}); // 存储表单错误信息
@@ -97,7 +98,8 @@ const FreightCalculator: React.FC = () => {
                     freightUnitPrice: 0,
                     packingFee: 0,
                     palletFee: 0,
-                    crateFee: 0
+                    crateFee: 0,
+                    totalCost: 0
                 }],
             });
         } else {
@@ -137,12 +139,23 @@ const FreightCalculator: React.FC = () => {
             Number(formData.shelvingFee) // 使用计算后的上架费
         );
     };
-
     const calculateDynamicTotal = (row: DynamicRow) => {
         const totalFixedCost = calculateFixedCost();
         const dynamicCost = (Number(row.freightUnitPrice) * formData.weight) + Number(row.packingFee) + Number(row.palletFee) + Number(row.crateFee);
+        // const newDynamicRows = formData.dynamicRows.map((row, i) => {
+        //    console.log(dynamicCost)
+        //     if (i === row.index) {
+        //         return { ...row, ["totalCost"]: dynamicCost };
+        //     }
+        //     return row;
+        // });
+        // setFormData({
+        //     ...formData,
+        //     dynamicRows: newDynamicRows,
+        // });
         return totalFixedCost + dynamicCost; // 将固定列费用和动态列费用相加
     };
+
 
     const validateForm = () => {
         const errors: { [key: string]: string } = {};
