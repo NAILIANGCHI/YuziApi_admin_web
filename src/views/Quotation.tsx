@@ -142,17 +142,8 @@ const FreightCalculator: React.FC = () => {
     const calculateDynamicTotal = (row: DynamicRow) => {
         const totalFixedCost = calculateFixedCost();
         const dynamicCost = (Number(row.freightUnitPrice) * formData.weight) + Number(row.packingFee) + Number(row.palletFee) + Number(row.crateFee);
-        // const newDynamicRows = formData.dynamicRows.map((row, i) => {
-        //    console.log(dynamicCost)
-        //     if (i === row.index) {
-        //         return { ...row, ["totalCost"]: dynamicCost };
-        //     }
-        //     return row;
-        // });
-        // setFormData({
-        //     ...formData,
-        //     dynamicRows: newDynamicRows,
-        // });
+        console.log("我是总费用所调用的函数")
+
         return totalFixedCost + dynamicCost; // 将固定列费用和动态列费用相加
     };
 
@@ -183,14 +174,26 @@ const FreightCalculator: React.FC = () => {
     const handleSubmit = () => {
         if (!validateForm()) {
             message.error('请填写所有必填项！');
-            return;
+            return
         }
+        console.log("我是提交的函数")
+        const updatedDynamicRows = formData.dynamicRows.map(row => {
+            const totalFixedCost = calculateFixedCost();
+            const dynamicCost = (Number(row.freightUnitPrice) * formData.weight) + Number(row.packingFee) + Number(row.palletFee) + Number(row.crateFee);
+            const totalCost = totalFixedCost + dynamicCost;
+
+            return {
+                ...row,
+                totalCost: totalCost, // 计算并加入 totalCost
+            };
+        });
 
         const payload = {
             ...formData,
             density: calculateDensity(),
             shelvingFee: calculateShelvingFee(formData.shelvingUnitPrice, formData.weight), // 计算上架费
             totalFixedCost: calculateFixedCost(),
+            dynamicRows: updatedDynamicRows, // 更新的 dynamicRows 包含 totalCost
         };
 
         console.log(payload);
@@ -358,7 +361,7 @@ const FreightCalculator: React.FC = () => {
                     <Input style={{width: "100px"}} value={formData.shelvingFee.toFixed(2)} readOnly />
                 </Form.Item>
 
-                <Title level={4} style={{ textAlign: 'center' }}>动态列</Title>
+                <Title level={4} style={{ textAlign: 'center' }}>时效列</Title>
                 <Button type="dashed" onClick={addDynamicRow} style={{ marginBottom: 16 }}>
                     添加动态列
                 </Button>
