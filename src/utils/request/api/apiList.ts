@@ -166,4 +166,30 @@ export const exportCheck = async (data: any) => {
         }
     });
 }
+
+// 导出账单
+export const exportQuotation = async (data: any) => {
+    return await request({
+        url: 'wps/quotation',
+        method: 'post',
+        data: {
+            customerCode: data.customerCode,
+            trackingNumber: data.trackingNumber,
+            itemName: data.itemName,
+            destination: data.destination,
+            productCategory: data.productCategory,
+            quantity: data.quantity,
+            weight: data.weight,
+            volume: data.volume,
+            density: data.density,
+            value: data.value,
+            insuranceFee: data.insuranceFee,
+            pickupFee: data.pickupFee,
+            shelvingUnitPrice: data.shelvingUnitPrice,
+            shelvingFee: data.shelvingFee,
+            dynamicRows: data.dynamicRows,
+            totalFixedCost: data.totalFixedCost
+        }
+    });
+};
 //

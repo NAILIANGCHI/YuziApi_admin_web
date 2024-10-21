@@ -311,4 +311,5 @@ const Logistics: React.FC = () => {
     );
 };
 
-export default Logistics;
+let logistics = Logistics;
+export default logistics;

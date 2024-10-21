@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Typography, InputNumber, Table, message } from 'antd';
+import {startLoading, stopLoading} from "@/store/loadingSlice.ts";
+import {AxiosError, AxiosResponse} from "axios";
+import { exportQuotation} from "@/utils/request/api/apiList.ts";
+import {useDispatch} from "react-redux";
 
 const { Title } = Typography;
 
@@ -32,7 +36,13 @@ interface FormData {
     dynamicRows: DynamicRow[];
 }
 
+interface ErrorData {
+    message: string;
+}
+
 const FreightCalculator: React.FC = () => {
+    const dispatch = useDispatch();
+    const [messageApi] = message.useMessage();
     const [formData, setFormData] = useState<FormData>({
         customerCode: '',
         trackingNumber: '',
@@ -171,7 +181,7 @@ const FreightCalculator: React.FC = () => {
         return Object.keys(errors).length === 0;
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!validateForm()) {
             message.error('请填写所有必填项！');
             return
@@ -195,9 +205,41 @@ const FreightCalculator: React.FC = () => {
             totalFixedCost: calculateFixedCost(),
             dynamicRows: updatedDynamicRows, // 更新的 dynamicRows 包含 totalCost
         };
-
-        console.log(payload);
         // 这里可以添加发送请求到后端的逻辑
+        dispatch(startLoading());
+        try {
+            const response: AxiosResponse = await exportQuotation(payload);
+            const responseData = response.data;
+            console.log(responseData)
+            if (responseData.code !== '200') {
+                errorWindows(responseData.message);
+            } else if (responseData.message == "success") {
+                successWindows("ok");
+            }
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                const errorData: ErrorData = error.response?.data || {message: error.message};
+                errorWindows(errorData.message);
+            } else {
+                errorWindows("发生意外错误");
+            }
+        } finally {
+            dispatch(stopLoading());
+        }
+    };
+
+    const errorWindows = (msg: string) => {
+        messageApi.open({
+            type: 'error',
+            content: msg,
+        });
+    };
+
+    const successWindows = (msg: string) => {
+        messageApi.open({
+            type: 'success',
+            content: msg,
+        });
     };
 
     const columns = [
@@ -374,7 +416,7 @@ const FreightCalculator: React.FC = () => {
                 />
 
                 <Form.Item>
-                    <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+                    <Button type="primary" htmlType="submit" style={{ width: '100%' }} >
                         提交
                     </Button>
                 </Form.Item>
