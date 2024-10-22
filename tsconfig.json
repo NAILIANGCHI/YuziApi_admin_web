@@ -24,13 +24,13 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
-    /*@ 路径提示 */
-    "baseUrl": "./",
-    "paths": {
-      "@/*": [
-        "src/*"
-      ]
-    },
+//    /*@ 路径提示 */
+//    "baseUrl": "./",
+//    "paths": {
+//      "@/*": [
+//        "src/*"
+//      ]
+//    },
     "allowSyntheticDefaultImports": true
   },
   "include": ["src"],
