@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Typography, InputNumber, Table, message } from 'antd';
-import {startLoading, stopLoading} from "@/store/loadingSlice.ts";
-import {AxiosError, AxiosResponse} from "axios";
-import { exportQuotation} from "@/utils/request/api/apiList.ts";
-import {useDispatch} from "react-redux";
+// import {startLoading, stopLoading} from "@/store/loadingSlice.ts";
+// import {AxiosError, AxiosResponse} from "axios";
+// import { exportQuotation} from "@/utils/request/api/apiList.ts";
+// import {useDispatch} from "react-redux";
 
 const { Title } = Typography;
 
@@ -36,12 +36,12 @@ interface FormData {
     dynamicRows: DynamicRow[];
 }
 
-interface ErrorData {
-    message: string;
-}
+// interface ErrorData {
+//     message: string;
+// }
 
 const FreightCalculator: React.FC = () => {
-    const dispatch = useDispatch();
+    // const dispatch = useDispatch();
     const [messageApi, contextHolder] = message.useMessage();
     const [formData, setFormData] = useState<FormData>({
         customerCode: '',
@@ -187,17 +187,16 @@ const FreightCalculator: React.FC = () => {
             message.error('请填写所有必填项！');
             return
         }
-        console.log("我是提交的函数")
-        const updatedDynamicRows = formData.dynamicRows.map(row => {
-            const totalFixedCost = calculateFixedCost();
-            const dynamicCost = (Number(row.freightUnitPrice) * formData.weight) + Number(row.packingFee) + Number(row.palletFee) + Number(row.crateFee);
-            const totalCost = totalFixedCost + dynamicCost;
-
-            return {
-                ...row,
-                totalCost: totalCost, // 计算并加入 totalCost
-            };
-        });
+        // const updatedDynamicRows = formData.dynamicRows.map(row => {
+        //     const totalFixedCost = calculateFixedCost();
+        //     const dynamicCost = (Number(row.freightUnitPrice) * formData.weight) + Number(row.packingFee) + Number(row.palletFee) + Number(row.crateFee);
+        //     const totalCost = totalFixedCost + dynamicCost;
+        //
+        //     return {
+        //         ...row,
+        //         totalCost: totalCost, // 计算并加入 totalCost
+        //     };
+        // });
         //
         // const payload = {
         //     ...formData,
@@ -236,12 +235,12 @@ const FreightCalculator: React.FC = () => {
         });
     };
 
-    const successWindows = (msg: string) => {
-        messageApi.open({
-            type: 'success',
-            content: msg,
-        });
-    };
+    // const successWindows = (msg: string) => {
+    //     messageApi.open({
+    //         type: 'success',
+    //         content: msg,
+    //     });
+    // };
 
     const columns = [
         {
