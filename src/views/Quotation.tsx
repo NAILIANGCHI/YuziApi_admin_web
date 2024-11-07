@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Typography, InputNumber, Table, message } from 'antd';
-// import {startLoading, stopLoading} from "@/store/loadingSlice.ts";
-// import {AxiosError, AxiosResponse} from "axios";
-// import { exportQuotation} from "@/utils/request/api/apiList.ts";
-// import {useDispatch} from "react-redux";
+import {startLoading, stopLoading} from "@/store/loadingSlice.ts";
+import {AxiosError, AxiosResponse} from "axios";
+import { exportQuotation} from "@/utils/request/api/apiList.ts";
+import {useDispatch} from "react-redux";
 
 const { Title } = Typography;
 
@@ -36,13 +36,13 @@ interface FormData {
     dynamicRows: DynamicRow[];
 }
 
-// interface ErrorData {
-//     message: string;
-// }
+interface ErrorData {
+    message: string;
+}
 
 const FreightCalculator: React.FC = () => {
-    // const dispatch = useDispatch();
-    const [messageApi, contextHolder] = message.useMessage();
+    const dispatch = useDispatch();
+    const [messageApi] = message.useMessage();
     const [formData, setFormData] = useState<FormData>({
         customerCode: '',
         trackingNumber: '',
@@ -64,7 +64,6 @@ const FreightCalculator: React.FC = () => {
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({}); // 存储表单错误信息
 
     useEffect(() => {
-        errorWindows("功能开发中...")
         const newDensity = calculateDensity();
         const newShelvingFee = calculateShelvingFee(formData.shelvingUnitPrice, formData.weight);
         setFormData(prevState => ({
@@ -187,45 +186,46 @@ const FreightCalculator: React.FC = () => {
             message.error('请填写所有必填项！');
             return
         }
-        // const updatedDynamicRows = formData.dynamicRows.map(row => {
-        //     const totalFixedCost = calculateFixedCost();
-        //     const dynamicCost = (Number(row.freightUnitPrice) * formData.weight) + Number(row.packingFee) + Number(row.palletFee) + Number(row.crateFee);
-        //     const totalCost = totalFixedCost + dynamicCost;
-        //
-        //     return {
-        //         ...row,
-        //         totalCost: totalCost, // 计算并加入 totalCost
-        //     };
-        // });
-        //
-        // const payload = {
-        //     ...formData,
-        //     density: calculateDensity(),
-        //     shelvingFee: calculateShelvingFee(formData.shelvingUnitPrice, formData.weight), // 计算上架费
-        //     totalFixedCost: calculateFixedCost(),
-        //     dynamicRows: updatedDynamicRows, // 更新的 dynamicRows 包含 totalCost
-        // };
-        // // 这里可以添加发送请求到后端的逻辑
-        // dispatch(startLoading());
-        // try {
-        //     const response: AxiosResponse = await exportQuotation(payload);
-        //     const responseData = response.data;
-        //     console.log(responseData)
-        //     if (responseData.code !== '200') {
-        //         errorWindows(responseData.message);
-        //     } else if (responseData.message == "success") {
-        //         successWindows("ok");
-        //     }
-        // } catch (error) {
-        //     if (error instanceof AxiosError) {
-        //         const errorData: ErrorData = error.response?.data || {message: error.message};
-        //         errorWindows(errorData.message);
-        //     } else {
-        //         errorWindows("发生意外错误");
-        //     }
-        // } finally {
-        //     dispatch(stopLoading());
-        // }
+        console.log("我是提交的函数")
+        const updatedDynamicRows = formData.dynamicRows.map(row => {
+            const totalFixedCost = calculateFixedCost();
+            const dynamicCost = (Number(row.freightUnitPrice) * formData.weight) + Number(row.packingFee) + Number(row.palletFee) + Number(row.crateFee);
+            const totalCost = totalFixedCost + dynamicCost;
+
+            return {
+                ...row,
+                totalCost: totalCost, // 计算并加入 totalCost
+            };
+        });
+
+        const payload = {
+            ...formData,
+            density: calculateDensity(),
+            shelvingFee: calculateShelvingFee(formData.shelvingUnitPrice, formData.weight), // 计算上架费
+            totalFixedCost: calculateFixedCost(),
+            dynamicRows: updatedDynamicRows, // 更新的 dynamicRows 包含 totalCost
+        };
+        // 这里可以添加发送请求到后端的逻辑
+        dispatch(startLoading());
+        try {
+            const response: AxiosResponse = await exportQuotation(payload);
+            const responseData = response.data;
+            console.log(responseData)
+            if (responseData.code !== '200') {
+                errorWindows(responseData.message);
+            } else if (responseData.message == "success") {
+                successWindows("ok");
+            }
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                const errorData: ErrorData = error.response?.data || {message: error.message};
+                errorWindows(errorData.message);
+            } else {
+                errorWindows("发生意外错误");
+            }
+        } finally {
+            dispatch(stopLoading());
+        }
     };
 
     const errorWindows = (msg: string) => {
@@ -235,12 +235,12 @@ const FreightCalculator: React.FC = () => {
         });
     };
 
-    // const successWindows = (msg: string) => {
-    //     messageApi.open({
-    //         type: 'success',
-    //         content: msg,
-    //     });
-    // };
+    const successWindows = (msg: string) => {
+        messageApi.open({
+            type: 'success',
+            content: msg,
+        });
+    };
 
     const columns = [
         {
@@ -330,8 +330,7 @@ const FreightCalculator: React.FC = () => {
             backgroundColor: '#fff',
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
         }}>
-            {contextHolder}
-            <Title level={2} style={{ textAlign: 'center' }}>报价单制作</Title>
+            <Title level={2} style={{ textAlign: 'center' }}>运费计算器</Title>
             <Form layout="vertical" onFinish={handleSubmit}>
                 <Form.Item label="客户代码" required>
                     <Input name="customerCode" value={formData.customerCode} onChange={handleChange} />
@@ -404,7 +403,7 @@ const FreightCalculator: React.FC = () => {
                     <Input style={{width: "100px"}} value={formData.shelvingFee.toFixed(2)} readOnly />
                 </Form.Item>
 
-                <Title level={4} style={{ textAlign: 'center' }}>新增时效<span style={{fontSize: '15px', color: "red"}}>功能开发中...</span></Title>
+                <Title level={4} style={{ textAlign: 'center' }}>时效列</Title>
                 <Button type="dashed" onClick={addDynamicRow} style={{ marginBottom: 16 }}>
                     添加动态列
                 </Button>
