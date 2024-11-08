@@ -1,9 +1,9 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { getToken } from '../function';
 
-const baseUrl = "http://192.168.18.29:9081/api";
-// const baseUrl = "http://112.124.65.228:9081/api";
-// const baseUrl = "https://api.naraci.top/api";
+const baseUrl = "http://192.168.18.29:9081/api";  // 局域网地址
+// const baseUrl = "http://112.124.65.228:9081/api"; // 远程地址
+// const baseUrl = "https://api.naraci.top/api"; // 生产环境
 
 
 // 定义 RequestOptions 接口
