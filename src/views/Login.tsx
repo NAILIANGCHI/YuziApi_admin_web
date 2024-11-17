@@ -5,7 +5,7 @@ import { login } from '@/utils/request/api/apiList';
 import { AxiosResponse, AxiosError } from 'axios';
 import { startLoading, stopLoading } from '@/store/loadingSlice';
 import "@/utils/style/login.css";
-import {useDispatch} from "react-redux";
+import { useDispatch } from "react-redux";
 
 interface LoginFormValues {
   username: string;
@@ -29,7 +29,7 @@ interface DataVerify {
 const Login = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const navigate = useNavigate();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const handleSuccess = (msg: string) => {
     messageApi.success(msg);
@@ -44,7 +44,7 @@ const Login = () => {
   };
 
   const onFinish = async (values: LoginFormValues) => {
-    dispatch(startLoading())
+    dispatch(startLoading());
     const data: LoginData = {
       email: values.username,
       password: values.password,
@@ -55,21 +55,21 @@ const Login = () => {
       const { code, message: responseMessage, data: responseData } = response.data;
 
       if (code !== '200') {
-        dispatch(stopLoading())
+        dispatch(stopLoading());
         handleError(responseMessage);
       } else {
-        dispatch(stopLoading())
+        dispatch(stopLoading());
         handleSuccess('登录成功');
         localStorage.setItem('token', responseData.token);
         setTimeout(saveDataAndRedirect, 2000);
       }
     } catch (error) {
       if (error instanceof AxiosError) {
-        dispatch(stopLoading())
+        dispatch(stopLoading());
         const errorMsg = error.response?.data?.message || error.message;
         handleError(errorMsg);
       } else {
-        dispatch(stopLoading())
+        dispatch(stopLoading());
         handleError('发生未知错误');
       }
     }
@@ -87,7 +87,7 @@ const Login = () => {
               </div>
               <div className="main">
                 <div className="form-container">
-                  <h1 className={"title"}>登录</h1>
+                  <h1 className="title">登录</h1>
                   <Form
                       name="login"
                       onFinish={onFinish}
